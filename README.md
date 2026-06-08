@@ -1,5 +1,18 @@
 
 # Model Due Diligence
+<p align="center">
+
+  <img
+
+    src="docs/assets/model-due-diligence-hero.png"
+
+    alt="model-due-diligence static supply-chain security infographic"
+
+    width="100%"
+
+  />
+
+</p>
 
 `model-due-diligence` is a Python command-line tool for performing **static supply-chain due diligence** on local AI model files and cloned model repositories before they are imported into runtimes such as Ollama, llama.cpp, LM Studio or Transformers.
 
