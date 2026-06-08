@@ -60,6 +60,7 @@ dev = [
 [project.scripts]
 model-due-diligence = "model_due_diligence.cli:main"
 mdd = "model_due_diligence.cli:main"
+mdd-ollama = "model_due_diligence.ollama_cli:main"
 
 [project.urls]
 Homepage = "https://github.com/mmccalla/model-due-diligence"

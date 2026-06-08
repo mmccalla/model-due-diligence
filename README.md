@@ -275,6 +275,7 @@ For a lighter install without optional scanner integrations:
 
 ```zsh
 mdd --help
+mdd-ollama --help
 model-due-diligence --help
 python -m model_due_diligence --help
 ```
@@ -293,6 +294,12 @@ Scan a local GGUF file:
 
 ```zsh
 mdd ~/models/qwen.gguf --out ./audit-qwen
+```
+
+Scan an installed Ollama model by name:
+
+```zsh
+mdd-ollama qwen3:4b --out ./audit-qwen3-ollama
 ```
 
 Fail the command when the risk level is medium or above:
@@ -352,6 +359,37 @@ usage: model-due-diligence [-h] [--out OUT] [--timeout TIMEOUT]
 | `--fail-on` | Return non-zero when risk is at or above the selected level |
 | `--version` | Print package version |
 
+### `mdd-ollama`
+
+`mdd-ollama` resolves an installed Ollama model from the local
+`OLLAMA_MODELS` store, stages scan-friendly filenames in a temporary directory,
+and then runs the normal static due-diligence flow on that staged directory.
+
+It does not require the Ollama server to be running as long as the local
+manifest and blob store is present.
+
+```text
+usage: mdd-ollama [-h] [--ollama-models-dir OLLAMA_MODELS_DIR] [--out OUT]
+                  [--timeout TIMEOUT] [--format FORMATS] [--skip-external]
+                  [--skip-modelscan] [--skip-semgrep] [--skip-bandit]
+                  [--skip-pip-audit] [--skip-detect-secrets]
+                  [--skip-quality-self-check] [--quality-self-check]
+                  [--fail-on {low,medium,high,critical}] [--keep-staged]
+                  model
+```
+
+Typical usage:
+
+```zsh
+mdd-ollama llama3:8b --out ./audit-llama3
+```
+
+For an uninstalled checkout, run it with:
+
+```zsh
+PYTHONPATH=src python3 -m model_due_diligence.ollama_cli llama3:8b --out ./audit-llama3
+```
+
 ---
 
 ## Example workflows
@@ -374,6 +412,14 @@ The script clones into a temporary directory, runs the scanner, writes reports t
 ./examples/audit-local-gguf.sh \
   ~/models/qwen3-8b-q4_k_m.gguf \
   ./audit-qwen3-gguf
+```
+
+### Audit an installed Ollama model
+
+```zsh
+./examples/audit-installed-ollama.sh \
+  qwen3:4b \
+  ./audit-qwen3-ollama
 ```
 
 ### Use in CI
@@ -555,8 +601,10 @@ model-due-diligence/
 │   ├── contribution-guide.md
 │   ├── limitations.md
 │   ├── scanner-coverage.md
+│   ├── standards-alignment.md
 │   └── threat-model.md
 ├── examples/
+│   ├── audit-installed-ollama.sh
 │   ├── audit-huggingface-clone.sh
 │   ├── audit-local-gguf.sh
 │   └── sample-report.md
@@ -572,6 +620,8 @@ model-due-diligence/
 │   ├── domain/
 │   ├── external/
 │   ├── inventory/
+│   ├── ollama.py
+│   ├── ollama_cli.py
 │   ├── reporting/
 │   ├── scanners/
 │   └── utils.py

@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import shutil
 import subprocess
+import sys
 import time
 from collections.abc import Sequence
 from os import environ
@@ -66,7 +67,8 @@ def run_command(
         )
 
     executable = command[0]
-    if shutil.which(executable) is None:
+    child_env = _sanitised_child_environment()
+    if shutil.which(executable, path=child_env.get("PATH")) is None:
         return CommandResult(
             tool=tool,
             available=False,
@@ -76,7 +78,6 @@ def run_command(
         )
 
     started = time.monotonic()
-    child_env = _sanitised_child_environment()
 
     try:
         completed = subprocess.run(
@@ -141,4 +142,18 @@ def _elapsed_seconds(started: float) -> float:
 
 
 def _sanitised_child_environment() -> dict[str, str]:
-    return {key: value for key, value in environ.items() if key not in _REMOVED_ENVIRONMENT_KEYS}
+    child_env = {key: value for key, value in environ.items() if key not in _REMOVED_ENVIRONMENT_KEYS}
+
+    # Prepend the active interpreter path as invoked, plus its resolved target
+    # directory, so virtualenv-installed CLIs remain discoverable even when the
+    # shell did not activate that environment and the interpreter entrypoint is
+    # itself a symlink.
+    executable_path = Path(sys.executable)
+    preferred_dirs = [str(executable_path.parent), str(executable_path.resolve().parent)]
+    path_entries = child_env.get("PATH", "").split(":")
+    for candidate in reversed(preferred_dirs):
+        if candidate and candidate not in path_entries:
+            path_entries.insert(0, candidate)
+    child_env["PATH"] = ":".join(entry for entry in path_entries if entry)
+
+    return child_env
