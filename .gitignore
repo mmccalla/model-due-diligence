@@ -110,3 +110,4 @@ pip-wheel-metadata/
 .pip-tools/
 .tox/
 .nox/
+.DS_Store
