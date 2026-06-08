@@ -1,4 +1,3 @@
-
 """Binary string scanner.
 
 This scanner extracts printable ASCII strings from non-text files and searches
@@ -26,6 +25,8 @@ class BinaryStringScanner:
 
     scanner_name = "binary_strings"
     evidence_max_chars = 300
+    ascii_printable_min = 32
+    ascii_printable_max = 126
 
     def scan(self, context: ScanContext, files: Iterable[Path]) -> list[Finding]:
         """Scan non-text files for suspicious string indicators."""
@@ -99,7 +100,7 @@ class BinaryStringScanner:
         current = bytearray()
 
         for byte in data:
-            if 32 <= byte <= 126:
+            if BinaryStringScanner.ascii_printable_min <= byte <= BinaryStringScanner.ascii_printable_max:
                 current.append(byte)
                 continue
 

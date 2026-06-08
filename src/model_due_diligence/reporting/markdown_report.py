@@ -15,7 +15,6 @@ from typing import Any
 from model_due_diligence.config.defaults import REPORT_MARKDOWN_FILENAME
 from model_due_diligence.domain.models import AuditReport, AuditSummary, FileCategory, Severity
 
-
 SEVERITY_SORT_ORDER: dict[Severity, int] = {
     Severity.CRITICAL: 0,
     Severity.HIGH: 1,
@@ -207,7 +206,10 @@ def _append_interpretation(lines: list[str]) -> None:
         [
             "## Interpretation",
             "",
-            "A LOW result does not prove that a model is safe. It means only that this static due-diligence pass did not identify the supported static artefact risks it is designed to detect.",
+            (
+                "A LOW result does not prove that a model is safe. It means only that this static "
+                "due-diligence pass did not identify the supported static artefact risks it is designed to detect."
+            ),
             "",
             "Before loading or importing any model artefact, use the broader control pattern:",
             "",
@@ -286,7 +288,7 @@ def _humanise_key(key: str) -> str:
 
 def _format_value(value: Any) -> str:
     if isinstance(value, Enum):
-        return value.value
+        return str(value.value)
     if isinstance(value, (dict, list, tuple, set)):
         return json.dumps(value, ensure_ascii=False, sort_keys=True)
     return str(value)

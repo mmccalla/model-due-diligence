@@ -12,6 +12,7 @@ import shutil
 import subprocess
 import time
 from collections.abc import Sequence
+from os import environ
 from pathlib import Path
 
 from model_due_diligence.config.defaults import DEFAULT_TIMEOUT_SECONDS
@@ -19,6 +20,15 @@ from model_due_diligence.domain.models import CommandResult
 
 MAX_CAPTURED_OUTPUT_CHARS = 20_000
 TIMEOUT_EXIT_CODE = 124
+_REMOVED_ENVIRONMENT_KEYS = {
+    "COVERAGE_FILE",
+    "COVERAGE_PROCESS_START",
+    "PYTEST_CURRENT_TEST",
+    "PYTEST_VERSION",
+    "COV_CORE_CONFIG",
+    "COV_CORE_DATAFILE",
+    "COV_CORE_SOURCE",
+}
 
 
 def truncate(value: str, max_length: int = MAX_CAPTURED_OUTPUT_CHARS) -> str:
@@ -66,6 +76,7 @@ def run_command(
         )
 
     started = time.monotonic()
+    child_env = _sanitised_child_environment()
 
     try:
         completed = subprocess.run(
@@ -75,6 +86,7 @@ def run_command(
             capture_output=True,
             timeout=timeout_seconds,
             check=False,
+            env=child_env,
         )
         return CommandResult(
             tool=tool,
@@ -126,3 +138,7 @@ def _stringify_paths(paths: Sequence[Path]) -> list[str]:
 
 def _elapsed_seconds(started: float) -> float:
     return round(time.monotonic() - started, 3)
+
+
+def _sanitised_child_environment() -> dict[str, str]:
+    return {key: value for key, value in environ.items() if key not in _REMOVED_ENVIRONMENT_KEYS}

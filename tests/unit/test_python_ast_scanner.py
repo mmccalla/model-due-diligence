@@ -79,8 +79,7 @@ def test_ast_scanner_flags_eval_builtin(tmp_path: Path) -> None:
 def test_ast_scanner_flags_trust_remote_code_true(tmp_path: Path) -> None:
     target = tmp_path / "remote_code.py"
     target.write_text(
-        "from transformers import AutoModel\n"
-        "AutoModel.from_pretrained('example/model', trust_remote_code=True)\n",
+        "from transformers import AutoModel\nAutoModel.from_pretrained('example/model', trust_remote_code=True)\n",
         encoding="utf-8",
     )
 
@@ -97,8 +96,7 @@ def test_ast_scanner_flags_trust_remote_code_true(tmp_path: Path) -> None:
 def test_ast_scanner_ignores_trust_remote_code_false(tmp_path: Path) -> None:
     target = tmp_path / "safe_remote_code.py"
     target.write_text(
-        "from transformers import AutoModel\n"
-        "AutoModel.from_pretrained('example/model', trust_remote_code=False)\n",
+        "from transformers import AutoModel\nAutoModel.from_pretrained('example/model', trust_remote_code=False)\n",
         encoding="utf-8",
     )
 

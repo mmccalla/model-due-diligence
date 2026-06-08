@@ -1,4 +1,3 @@
-
 """Unit tests for the shared external command runner."""
 
 from __future__ import annotations

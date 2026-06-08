@@ -1,4 +1,3 @@
-
 """pip-audit external scanner adapter.
 
 `pip-audit` identifies known vulnerabilities in Python dependency files. This
@@ -106,7 +105,9 @@ class PipAuditAdapter:
                     file=file_path,
                     message="pip-audit reported known vulnerabilities in a Python dependency file.",
                     evidence=self._evidence(result),
-                    recommendation="Review the raw pip-audit JSON output and update or justify vulnerable dependencies.",
+                    recommendation=(
+                        "Review the raw pip-audit JSON output and update or justify vulnerable dependencies."
+                    ),
                     scanner=self.tool_name,
                 )
             ]

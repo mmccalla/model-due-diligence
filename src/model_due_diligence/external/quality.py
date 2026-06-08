@@ -1,4 +1,3 @@
-
 """Quality self-check external adapters.
 
 These adapters run the project's own quality gates as optional self-checks:
@@ -100,7 +99,10 @@ class QualitySelfCheckAdapter:
                     category="quality_tool_unavailable",
                     file="",
                     message=f"{result.tool} is not installed or not available on PATH.",
-                    recommendation="Run ./scripts/dev-setup.sh and activate the virtual environment before running self-checks.",
+                    recommendation=(
+                        "Run ./scripts/dev-setup.sh and activate the virtual environment before "
+                        "running self-checks."
+                    ),
                     scanner=result.tool,
                 )
             ]

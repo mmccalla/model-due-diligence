@@ -10,4 +10,4 @@ fixture as an accidental code-quality failure.
 
 import os
 
-os.system("echo suspicious")  # noqa: S605
+os.system("echo suspicious")

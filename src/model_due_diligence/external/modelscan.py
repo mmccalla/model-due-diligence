@@ -1,4 +1,3 @@
-
 """ModelScan external scanner adapter.
 
 ModelScan performs static scanning for unsafe model serialisation patterns. This
@@ -73,9 +72,14 @@ class ModelScanAdapter:
                     severity=Severity.HIGH,
                     category="external_scanner_findings",
                     file="",
-                    message="ModelScan reported potential unsafe model serialisation findings. Review the raw ModelScan JSON output.",
+                    message=(
+                        "ModelScan reported potential unsafe model serialisation findings. "
+                        "Review the raw ModelScan JSON output."
+                    ),
                     evidence=self._evidence(result),
-                    recommendation="Do not load the model artefact until ModelScan findings are reviewed and justified.",
+                    recommendation=(
+                        "Do not load the model artefact until ModelScan findings are reviewed and justified."
+                    ),
                     scanner=self.tool_name,
                 )
             ]

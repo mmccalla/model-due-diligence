@@ -10,12 +10,12 @@ logic. It is the common language of the application.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from enum import Enum
+from enum import StrEnum
 from pathlib import Path
 from typing import Any
 
 
-class Severity(str, Enum):
+class Severity(StrEnum):
     """Normalised severity for scanner findings."""
 
     INFO = "INFO"
@@ -25,7 +25,7 @@ class Severity(str, Enum):
     CRITICAL = "CRITICAL"
 
 
-class RiskLevel(str, Enum):
+class RiskLevel(StrEnum):
     """Overall risk level assigned to a scan report."""
 
     LOW = "LOW"
@@ -34,7 +34,7 @@ class RiskLevel(str, Enum):
     CRITICAL = "CRITICAL"
 
 
-class FileCategory(str, Enum):
+class FileCategory(StrEnum):
     """Normalised file categories used by inventory and reports."""
 
     COMPILED_BINARY = "compiled_binary"
@@ -47,7 +47,7 @@ class FileCategory(str, Enum):
     UNREADABLE = "unreadable"
 
 
-class ReportFormat(str, Enum):
+class ReportFormat(StrEnum):
     """Supported report output formats."""
 
     JSON = "json"

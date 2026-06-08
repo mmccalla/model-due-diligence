@@ -1,4 +1,3 @@
-
 """Suspicious pattern definitions used by native scanners.
 
 These patterns are intentionally conservative. A match is evidence for manual

@@ -1,4 +1,3 @@
-
 """Default constants for model-due-diligence.
 
 Keep this module free of runtime logic. It should contain shared configuration

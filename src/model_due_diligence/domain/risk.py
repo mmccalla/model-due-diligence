@@ -8,6 +8,7 @@ be treated as a decision aid, not an automated trust verdict.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import ClassVar
 
 from model_due_diligence.domain.models import CommandResult, Finding, RiskLevel, Severity
 
@@ -26,7 +27,7 @@ class RiskScorer:
     MIN_SCORE = 0
     MAX_SCORE = 100
 
-    SEVERITY_WEIGHTS: dict[Severity, int] = {
+    SEVERITY_WEIGHTS: ClassVar[dict[Severity, int]] = {
         Severity.INFO: 0,
         Severity.LOW: 3,
         Severity.MEDIUM: 10,
@@ -34,7 +35,7 @@ class RiskScorer:
         Severity.CRITICAL: 60,
     }
 
-    TOOL_FINDING_HINTS: dict[str, int] = {
+    TOOL_FINDING_HINTS: ClassVar[dict[str, int]] = {
         "modelscan": 30,
         "semgrep": 10,
         "bandit": 10,
@@ -46,7 +47,7 @@ class RiskScorer:
         "self_mypy": 3,
     }
 
-    RISK_BANDS: tuple[RiskBand, ...] = (
+    RISK_BANDS: ClassVar[tuple[RiskBand, ...]] = (
         RiskBand(90, RiskLevel.CRITICAL),
         RiskBand(70, RiskLevel.HIGH),
         RiskBand(30, RiskLevel.MEDIUM),

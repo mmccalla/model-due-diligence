@@ -1,4 +1,3 @@
-
 """detect-secrets external scanner adapter.
 
 `detect-secrets` identifies committed secrets and credential-like values. This
@@ -90,7 +89,10 @@ class DetectSecretsAdapter:
                         file="",
                         message="detect-secrets reported potential secrets. Review the raw detect-secrets JSON output.",
                         evidence=self._evidence(result),
-                        recommendation="Review detect-secrets.json. If any real credentials are present, remove them and rotate them.",
+                        recommendation=(
+                            "Review detect-secrets.json. If any real credentials are present, remove them "
+                            "and rotate them."
+                        ),
                         scanner=self.tool_name,
                     )
                 ]

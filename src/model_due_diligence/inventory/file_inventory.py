@@ -1,4 +1,3 @@
-
 """File inventory builder.
 
 This module creates the static file inventory used by the rest of the scan. It
@@ -31,14 +30,17 @@ def classify_file(path: Path) -> FileCategory:
 
     if path.is_symlink():
         return FileCategory.SYMLINK
-    if suffix in HIGH_RISK_SERIALISATION_EXTENSIONS:
-        return FileCategory.HIGH_RISK_SERIALISED_MODEL
-    if suffix in LOWER_RISK_MODEL_EXTENSIONS:
-        return FileCategory.LOWER_RISK_MODEL_FORMAT
-    if suffix in COMPILED_BINARY_EXTENSIONS:
-        return FileCategory.COMPILED_BINARY
-    if suffix in EXECUTABLE_OR_SCRIPT_EXTENSIONS:
-        return FileCategory.SCRIPT_OR_EXECUTABLE
+
+    suffix_categories = (
+        (HIGH_RISK_SERIALISATION_EXTENSIONS, FileCategory.HIGH_RISK_SERIALISED_MODEL),
+        (LOWER_RISK_MODEL_EXTENSIONS, FileCategory.LOWER_RISK_MODEL_FORMAT),
+        (COMPILED_BINARY_EXTENSIONS, FileCategory.COMPILED_BINARY),
+        (EXECUTABLE_OR_SCRIPT_EXTENSIONS, FileCategory.SCRIPT_OR_EXECUTABLE),
+    )
+    for extensions, category in suffix_categories:
+        if suffix in extensions:
+            return category
+
     if name in DEPENDENCY_FILE_NAMES or name in {"setup.py", "setup.cfg"}:
         return FileCategory.DEPENDENCY_OR_BUILD_FILE
 

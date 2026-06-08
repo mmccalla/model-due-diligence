@@ -1,4 +1,3 @@
-
 """Report generation integration tests.
 
 These tests verify that the report renderers accept the current domain model and

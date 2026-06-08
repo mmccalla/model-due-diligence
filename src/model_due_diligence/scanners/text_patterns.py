@@ -104,14 +104,31 @@ class SuspiciousTextScanner:
                 "Review immediately. Download-and-execute patterns are high-risk in model repositories and should "
                 "not run during setup or model loading."
             ),
-            "reverse_shell": "Review immediately. Reverse-shell indicators are high-risk and unexpected in model repositories.",
-            "secret_terms": "Check whether real credentials are present. If so, remove them and rotate the affected secrets.",
-            "credential_file_access": "Review whether the repository attempts to read local credential files or environment material.",
-            "network_access": "Review whether network access is expected and whether it can execute during setup or model loading.",
+            "reverse_shell": (
+                "Review immediately. Reverse-shell indicators are high-risk and unexpected in model repositories."
+            ),
+            "secret_terms": (
+                "Check whether real credentials are present. If so, remove them and rotate the affected secrets."
+            ),
+            "credential_file_access": (
+                "Review whether the repository attempts to read local credential files or environment material."
+            ),
+            "network_access": (
+                "Review whether network access is expected and whether it can execute during setup or model loading."
+            ),
             "shell_execution": "Review whether shell execution can occur during import, setup or model loading.",
-            "destructive_file_ops": "Review whether destructive file operations can affect user files or project repositories.",
-            "obfuscation": "Review whether obfuscation is justified. Obfuscated execution paths require manual inspection.",
+            "destructive_file_ops": (
+                "Review whether destructive file operations can affect user files or project repositories."
+            ),
+            "obfuscation": (
+                "Review whether obfuscation is justified. Obfuscated execution paths require manual inspection."
+            ),
             "environment_access": "Review whether environment access can expose secrets or local configuration.",
-            "package_install": "Review whether dependency installation is explicit, pinned and safe for the intended environment.",
+            "package_install": (
+                "Review whether dependency installation is explicit, pinned and safe for the intended environment."
+            ),
         }
-        return recommendations.get(name, "Manually review whether this can execute during model loading or setup.")
+        return recommendations.get(
+            name,
+            "Manually review whether this can execute during model loading or setup.",
+        )

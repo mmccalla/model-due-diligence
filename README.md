@@ -32,6 +32,7 @@ A clean report means only that this tool did not identify the specific static ar
 - [Testing and quality gates](#testing-and-quality-gates)
 - [Repository structure](#repository-structure)
 - [Security posture](#security-posture)
+- [Standards alignment](#standards-alignment)
 - [Limitations](#limitations)
 - [Roadmap](#roadmap)
 - [Contributing](#contributing)
@@ -605,6 +606,13 @@ The project follows these design rules:
 - dependency updates are managed through Dependabot;
 - CodeQL runs through GitHub Actions;
 - releases build source and wheel distributions and validate metadata before publishing.
+
+---
+
+## Standards alignment
+
+An explicit control mapping for relevant NIST, MITRE, and OWASP guidance is in
+[docs/standards-alignment.md](docs/standards-alignment.md).
 
 ---
 

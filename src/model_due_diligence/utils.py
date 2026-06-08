@@ -66,8 +66,8 @@ def read_text_safely(path: Path, max_bytes: int = MAX_TEXT_SCAN_BYTES) -> str | 
 def iter_files(target: Path) -> list[Path]:
     """Return sorted file and symlink paths under a target.
 
-    Default ignored directories are skipped to avoid scanning virtual
-environments, Git internals, caches and generated reports.
+        Default ignored directories are skipped to avoid scanning virtual
+    environments, Git internals, caches and generated reports.
     """
 
     if target.is_file() or target.is_symlink():

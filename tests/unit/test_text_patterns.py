@@ -36,8 +36,7 @@ def test_text_scanner_flags_eval_pattern(tmp_path: Path) -> None:
 def test_text_scanner_flags_trust_remote_code_as_high_severity(tmp_path: Path) -> None:
     target = tmp_path / "remote_code.py"
     target.write_text(
-        "from transformers import AutoModel\n"
-        "AutoModel.from_pretrained('example/model', trust_remote_code=True)\n",
+        "from transformers import AutoModel\nAutoModel.from_pretrained('example/model', trust_remote_code=True)\n",
         encoding="utf-8",
     )
 
@@ -58,8 +57,7 @@ def test_text_scanner_flags_dynamic_download_and_execute_as_high_severity(tmp_pa
     findings = SuspiciousTextScanner().scan(_context(tmp_path, tmp_path / "out"), [target])
 
     assert any(
-        finding.category == "suspicious_text:dynamic_download_and_execute"
-        and finding.severity == Severity.HIGH
+        finding.category == "suspicious_text:dynamic_download_and_execute" and finding.severity == Severity.HIGH
         for finding in findings
     )
 
@@ -85,8 +83,7 @@ def test_text_scanner_flags_credential_file_access(tmp_path: Path) -> None:
     findings = SuspiciousTextScanner().scan(_context(tmp_path, tmp_path / "out"), [target])
 
     assert any(
-        finding.category == "suspicious_text:credential_file_access"
-        and finding.severity == Severity.MEDIUM
+        finding.category == "suspicious_text:credential_file_access" and finding.severity == Severity.MEDIUM
         for finding in findings
     )
 

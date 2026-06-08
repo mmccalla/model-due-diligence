@@ -1,4 +1,3 @@
-
 """Model metadata scanner.
 
 This scanner performs static header-level inspection of model artefacts whose
@@ -16,7 +15,7 @@ import re
 import struct
 from collections.abc import Iterable
 from pathlib import Path
-from typing import Any
+from typing import Any, BinaryIO, cast
 
 from model_due_diligence.config.defaults import GGUF_MAGIC, SAFETENSORS_MAX_HEADER_BYTES
 from model_due_diligence.domain.models import Finding, ModelMetadata, ScanContext, Severity
@@ -29,6 +28,8 @@ class ModelMetadataScanner:
     scanner_name = "model_metadata"
     gguf_min_expected_size_bytes = 1024 * 1024
     metadata_evidence_max_chars = 300
+    gguf_version_bytes = 4
+    safetensors_header_prefix_bytes = 8
 
     def scan(self, context: ScanContext, files: Iterable[Path]) -> tuple[list[ModelMetadata], list[Finding]]:
         """Scan supported model files and return metadata plus findings."""
@@ -81,11 +82,11 @@ class ModelMetadataScanner:
         return ModelMetadata(file=relative, kind="gguf", metadata=meta, warnings=warnings), findings
 
     @staticmethod
-    def _read_gguf_version(file: object) -> int | None:
-        data = file.read(4)  # type: ignore[attr-defined]
-        if len(data) != 4:
+    def _read_gguf_version(file: BinaryIO) -> int | None:
+        data = file.read(ModelMetadataScanner.gguf_version_bytes)
+        if len(data) != ModelMetadataScanner.gguf_version_bytes:
             return None
-        return struct.unpack("<I", data)[0]
+        return cast(int, struct.unpack("<I", data)[0])
 
     def _scan_safetensors(self, context: ScanContext, path: Path) -> tuple[ModelMetadata, list[Finding]]:
         relative = safe_relative(path, context.root)
@@ -116,8 +117,8 @@ class ModelMetadataScanner:
 
     def _read_safetensors_header(self, path: Path, meta: dict[str, Any]) -> dict[str, Any]:
         with path.open("rb") as file:
-            raw_header_length = file.read(8)
-            if len(raw_header_length) != 8:
+            raw_header_length = file.read(self.safetensors_header_prefix_bytes)
+            if len(raw_header_length) != self.safetensors_header_prefix_bytes:
                 raise ValueError("Safetensors file is too short to contain a header length.")
 
             header_length = struct.unpack("<Q", raw_header_length)[0]

@@ -48,7 +48,9 @@ def test_gguf_invalid_magic_creates_high_severity_finding(tmp_path: Path) -> Non
 
     assert metadata[0].warnings == ["Invalid GGUF magic bytes."]
     assert any(
-        finding.category == "gguf_invalid_magic" and finding.severity == Severity.HIGH and finding.scanner == "model_metadata"
+        finding.category == "gguf_invalid_magic"
+        and finding.severity == Severity.HIGH
+        and finding.scanner == "model_metadata"
         for finding in findings
     )
 
@@ -78,8 +80,7 @@ def test_safetensors_no_tensors_creates_medium_finding(tmp_path: Path) -> None:
 
     assert metadata[0].metadata["tensor_count"] == 0
     assert any(
-        finding.category == "safetensors_no_tensors" and finding.severity == Severity.MEDIUM
-        for finding in findings
+        finding.category == "safetensors_no_tensors" and finding.severity == Severity.MEDIUM for finding in findings
     )
 
 
@@ -109,8 +110,7 @@ def test_safetensors_parse_error_creates_high_finding(tmp_path: Path) -> None:
 
     assert metadata[0].warnings
     assert any(
-        finding.category == "safetensors_parse_error" and finding.severity == Severity.HIGH
-        for finding in findings
+        finding.category == "safetensors_parse_error" and finding.severity == Severity.HIGH for finding in findings
     )
 
 

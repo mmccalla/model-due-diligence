@@ -1,11 +1,9 @@
-"""Adapter module for bandit. See scanner_runner.py."""
-
 """Bandit external scanner adapter.
 
 Bandit performs Python-focused static security analysis. This adapter is a thin
 wrapper around the Bandit CLI and deliberately avoids interpreting Bandit
 findings in detail. Raw Bandit JSON is written to the output directory and the
-normalised finding model records only tool availability / execution signals.
+normalised finding model records only tool availability and execution signals.
 """
 
 from __future__ import annotations
@@ -23,11 +21,7 @@ class BanditAdapter:
     tool_name = "bandit"
 
     def run(self, context: ScanContext) -> ExternalScannerResult:
-        """Run Bandit and return a normalised external scanner result.
-
-        Bandit exit codes are treated as review signals rather than definitive
-        proof of compromise. The raw JSON report remains the detailed evidence.
-        """
+        """Run Bandit and return a normalised external scanner result."""
 
         output_path = context.output_dir / RAW_BANDIT_FILENAME
         command = self._build_command(context.target, output_path)
@@ -81,7 +75,10 @@ class BanditAdapter:
                     file="",
                     message="Bandit reported Python security findings. Review the raw Bandit JSON output.",
                     evidence=self._evidence(result),
-                    recommendation="Review bandit.json and decide whether findings are expected, false positives or blocking issues.",
+                    recommendation=(
+                        "Review bandit.json and decide whether findings are expected, false positives "
+                        "or blocking issues."
+                    ),
                     scanner=self.tool_name,
                 )
             ]

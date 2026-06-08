@@ -52,7 +52,9 @@ class GitProvenanceScanner:
             if not result.available:
                 metadata[f"{key}_error"] = f"Required command not available: {command[0]}"
             elif result.exit_code not in (0, None):
-                metadata[f"{key}_error"] = result.stderr.strip() or result.stdout.strip() or f"Exit code {result.exit_code}"
+                metadata[f"{key}_error"] = (
+                    result.stderr.strip() or result.stdout.strip() or f"Exit code {result.exit_code}"
+                )
 
         return metadata
 

@@ -1,4 +1,3 @@
-
 """Semgrep external scanner adapter.
 
 Semgrep performs rule-based static analysis across source code and configuration
@@ -81,7 +80,10 @@ class SemgrepAdapter:
                     file="",
                     message="Semgrep reported static-analysis findings. Review the raw Semgrep JSON output.",
                     evidence=self._evidence(result),
-                    recommendation="Review semgrep.json and decide whether findings are expected, false positives or blocking issues.",
+                    recommendation=(
+                        "Review semgrep.json and decide whether findings are expected, false positives "
+                        "or blocking issues."
+                    ),
                     scanner=self.tool_name,
                 )
             ]
