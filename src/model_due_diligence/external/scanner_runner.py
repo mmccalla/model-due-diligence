@@ -1,63 +1,83 @@
+"""External scanner orchestration.
+
+This module coordinates optional external scanner adapters and normalises their
+outputs into the domain model expected by the application layer.
+
+Individual adapters own command construction and high-level result mapping. The
+runner only decides which adapters should run based on `ScanContext` flags and
+then flattens their results into `CommandResult[]` and `Finding[]`.
+"""
+
 from __future__ import annotations
 
-import hashlib
-from pathlib import Path
+from collections.abc import Iterable
 
-from model_due_diligence.domain.models import CommandResult, Finding, ScanContext, Severity
-from model_due_diligence.external.command_runner import run_command
+from model_due_diligence.domain.models import CommandResult, ExternalScannerResult, Finding, ScanContext, Severity
+from model_due_diligence.external.bandit import BanditAdapter
+from model_due_diligence.external.detect_secrets import DetectSecretsAdapter
+from model_due_diligence.external.modelscan import ModelScanAdapter
+from model_due_diligence.external.pip_audit import PipAuditAdapter
+from model_due_diligence.external.quality import QualitySelfCheckAdapter
+from model_due_diligence.external.semgrep import SemgrepAdapter
 
 
 class ExternalScannerRunner:
+    """Run all enabled external scanners for a scan context."""
+
+    def __init__(
+        self,
+        modelscan: ModelScanAdapter | None = None,
+        semgrep: SemgrepAdapter | None = None,
+        bandit: BanditAdapter | None = None,
+        pip_audit: PipAuditAdapter | None = None,
+        detect_secrets: DetectSecretsAdapter | None = None,
+        quality: QualitySelfCheckAdapter | None = None,
+    ) -> None:
+        self._modelscan = modelscan or ModelScanAdapter()
+        self._semgrep = semgrep or SemgrepAdapter()
+        self._bandit = bandit or BanditAdapter()
+        self._pip_audit = pip_audit or PipAuditAdapter()
+        self._detect_secrets = detect_secrets or DetectSecretsAdapter()
+        self._quality = quality or QualitySelfCheckAdapter()
+
     def run_all(self, context: ScanContext) -> tuple[list[CommandResult], list[Finding]]:
+        """Run enabled external scanners and return command results plus findings."""
+
         if context.skip_external:
-            return [], [Finding(Severity.LOW, "external_scanners_skipped", "", "External scanners were skipped by CLI option.")]
-        results: list[CommandResult] = []
-        if not context.skip_modelscan: results.append(self._run_modelscan(context))
-        if not context.skip_semgrep: results.append(self._run_semgrep(context))
-        if not context.skip_bandit: results.append(self._run_bandit(context))
-        if not context.skip_pip_audit: results.extend(self._run_pip_audit(context))
-        if not context.skip_detect_secrets: results.append(self._run_detect_secrets(context))
-        if context.quality_self_check and not context.skip_quality_self_check: results.extend(self._run_quality_self_check(context))
-        findings = [Finding(Severity.LOW, "scanner_unavailable", "", f"{r.tool} is not installed or not available on PATH.") for r in results if not r.available]
-        return results, findings
+            return [], [self._external_scanners_skipped_finding()]
+
+        scanner_results = list(self._run_enabled_scanners(context))
+        command_results = [result.tool_result for result in scanner_results]
+        findings = [finding for result in scanner_results for finding in result.findings]
+
+        return command_results, findings
+
+    def _run_enabled_scanners(self, context: ScanContext) -> Iterable[ExternalScannerResult]:
+        if not context.skip_modelscan:
+            yield self._modelscan.run(context)
+
+        if not context.skip_semgrep:
+            yield self._semgrep.run(context)
+
+        if not context.skip_bandit:
+            yield self._bandit.run(context)
+
+        if not context.skip_pip_audit:
+            yield from self._pip_audit.run(context)
+
+        if not context.skip_detect_secrets:
+            yield self._detect_secrets.run(context)
+
+        if context.quality_self_check and not context.skip_quality_self_check:
+            yield from self._quality.run(context)
 
     @staticmethod
-    def _run_modelscan(context: ScanContext) -> CommandResult:
-        output = context.output_dir / "modelscan.json"
-        return run_command("modelscan", ["modelscan", "-p", str(context.target), "-r", "json", "-o", str(output), "--show-skipped"], context.root, context.timeout_seconds, [output])
-
-    @staticmethod
-    def _run_semgrep(context: ScanContext) -> CommandResult:
-        output = context.output_dir / "semgrep.json"
-        return run_command("semgrep", ["semgrep", "scan", "--config", "auto", "--json", "--output", str(output), str(context.target)], context.root, context.timeout_seconds, [output])
-
-    @staticmethod
-    def _run_bandit(context: ScanContext) -> CommandResult:
-        output = context.output_dir / "bandit.json"
-        return run_command("bandit", ["bandit", "-r", str(context.target), "-f", "json", "-o", str(output)], context.root, context.timeout_seconds, [output])
-
-    @staticmethod
-    def _run_pip_audit(context: ScanContext) -> list[CommandResult]:
-        results: list[CommandResult] = []
-        for req in context.root.rglob("requirements.txt") if context.root.is_dir() else []:
-            output = context.output_dir / f"pip-audit-{hashlib.sha256(str(req).encode()).hexdigest()[:12]}.json"
-            results.append(run_command("pip-audit", ["pip-audit", "-r", str(req), "-f", "json", "-o", str(output)], context.root, context.timeout_seconds, [output]))
-        return results
-
-    @staticmethod
-    def _run_detect_secrets(context: ScanContext) -> CommandResult:
-        output = context.output_dir / "detect-secrets.json"
-        result = run_command("detect-secrets", ["detect-secrets", "scan", str(context.target), "--all-files"], context.root, context.timeout_seconds)
-        if result.available:
-            output.write_text(result.stdout, encoding="utf-8")
-        return CommandResult(result.tool, result.available, result.command, result.exit_code, result.stdout, result.stderr, [str(output)])
-
-    @staticmethod
-    def _run_quality_self_check(context: ScanContext) -> list[CommandResult]:
-        script_root = Path(__file__).resolve().parents[2]
-        return [
-            run_command("self_ruff_check", ["ruff", "check", str(script_root)], script_root, context.timeout_seconds),
-            run_command("self_ruff_format_check", ["ruff", "format", "--check", str(script_root)], script_root, context.timeout_seconds),
-            run_command("self_pyright", ["pyright", str(script_root), "--outputjson"], script_root, context.timeout_seconds),
-            run_command("self_mypy", ["mypy", str(script_root)], script_root, context.timeout_seconds),
-        ]
+    def _external_scanners_skipped_finding() -> Finding:
+        return Finding(
+            severity=Severity.LOW,
+            category="external_scanners_skipped",
+            file="",
+            message="External scanners were skipped by CLI option.",
+            recommendation="Rerun without --skip-external for fuller supply-chain due diligence.",
+            scanner="external_scanner_runner",
+        )

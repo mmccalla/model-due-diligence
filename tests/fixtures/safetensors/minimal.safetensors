@@ -1,0 +1,14 @@
+
+
+This is a deliberately non-valid safetensors fixture for model-due-diligence tests.
+
+It is kept as plain text so the repository does not include real model weights,
+large binary artefacts or third-party model payloads.
+
+The file name is intentionally model-like so tests can exercise safetensors
+extension handling, inventory classification, hashing, report generation and
+malformed-header detection.
+
+This file is not a valid safetensors model.
+It must not be loaded by any model runtime.
+It contains no tensor data, executable code, credentials or binary payloads.

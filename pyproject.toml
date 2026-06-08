@@ -51,3 +51,190 @@ typeCheckingMode = "strict"
 pythonVersion = "3.11"
 include = ["src", "tests"]
 reportMissingTypeStubs = false
+
+[build-system]
+requires = ["hatchling>=1.25.0"]
+build-backend = "hatchling.build"
+
+[project]
+name = "model-due-diligence"
+version = "0.1.0"
+description = "Static due-diligence scanner for local AI model artefacts and repositories."
+readme = "README.md"
+requires-python = ">=3.11"
+license = "Apache-2.0"
+authors = [{ name = "Max McKool", email = "markm@portantonio.co.uk" }]
+keywords = [
+  "ai-security",
+  "model-security",
+  "supply-chain",
+  "model-scanning",
+  "llm",
+  "gguf",
+  "safetensors",
+]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Environment :: Console",
+  "Intended Audience :: Developers",
+  "Intended Audience :: Information Technology",
+  "Intended Audience :: System Administrators",
+  "License :: OSI Approved :: Apache Software License",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3 :: Only",
+  "Topic :: Security",
+  "Topic :: Software Development :: Quality Assurance",
+  "Topic :: Utilities",
+  "Typing :: Typed",
+]
+dependencies = []
+
+[project.optional-dependencies]
+scanners = [
+  "bandit>=1.7.8",
+  "detect-secrets>=1.5.0",
+  "modelscan>=0.8.0",
+  "pip-audit>=2.7.0",
+  "semgrep>=1.70.0",
+]
+dev = [
+  "build>=1.2.1",
+  "mypy>=1.10.0",
+  "pyright>=1.1.370",
+  "pytest>=8.0.0",
+  "pytest-cov>=5.0.0",
+  "ruff>=0.6.0",
+  "twine>=5.1.0",
+  "types-setuptools",
+]
+
+[project.scripts]
+model-due-diligence = "model_due_diligence.cli:main"
+mdd = "model_due_diligence.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/markm/model-due-diligence"
+Repository = "https://github.com/markm/model-due-diligence"
+Issues = "https://github.com/markm/model-due-diligence/issues"
+Documentation = "https://github.com/markm/model-due-diligence#readme"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/model_due_diligence"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+  "/src",
+  "/tests",
+  "/docs",
+  "/examples",
+  "/scripts",
+  "/README.md",
+  "/LICENSE",
+  "/pyproject.toml",
+]
+exclude = [
+  "/audit*",
+  "/model-audit-report",
+  "*.gguf",
+  "*.safetensors",
+  "*.onnx",
+  "*.bin",
+  "*.pt",
+  "*.pth",
+  "*.pkl",
+  "*.pickle",
+  "*.joblib",
+  "*.h5",
+  "*.hdf5",
+  "*.ckpt",
+  "*.mar",
+  "*.pb",
+]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 120
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "S", "SIM", "C4", "PL", "RUF"]
+ignore = [
+  "S603",    # External scanner adapters intentionally pass argument lists to subprocess without shell=True.
+  "S607",    # External scanner adapters intentionally resolve tools from PATH.
+  "PLR0913", # Dependency-injection constructors can legitimately have several optional collaborators.
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = [
+  "S101",    # Tests use assert statements.
+  "S105",    # Tests and fixtures may include synthetic token-like strings.
+  "S106",    # Tests and fixtures may include synthetic password-like strings.
+  "S108",    # Tests use temporary directories.
+  "PLR2004", # Numeric assertions are clearer than named constants in small tests.
+]
+"tests/fixtures/**/*.py" = [
+  "S605",    # Suspicious fixture intentionally contains shell-execution indicators.
+]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "lf"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q --cov=src/model_due_diligence --cov-report=term-missing --cov-report=xml"
+
+[tool.coverage.run]
+branch = true
+source = ["src/model_due_diligence"]
+omit = [
+  "tests/*",
+]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = false
+fail_under = 0
+exclude_lines = [
+  "pragma: no cover",
+  "if __name__ == .__main__.:",
+  "if TYPE_CHECKING:",
+]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+mypy_path = "src"
+warn_unused_ignores = true
+warn_redundant_casts = true
+warn_unreachable = true
+no_implicit_optional = true
+pretty = true
+
+[[tool.mypy.overrides]]
+module = [
+  "safetensors.*",
+]
+ignore_missing_imports = true
+
+[tool.pyright]
+typeCheckingMode = "strict"
+pythonVersion = "3.11"
+include = ["src", "tests"]
+exclude = [
+  "**/.venv",
+  "**/.mypy_cache",
+  "**/.pytest_cache",
+  "**/.ruff_cache",
+  "**/build",
+  "**/dist",
+  "**/audit*",
+]
+reportMissingTypeStubs = false
+reportUnknownMemberType = false
+reportUnknownArgumentType = false
+reportUnknownVariableType = false

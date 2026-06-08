@@ -1,2 +1,59 @@
-# Auto detect text files and perform LF normalization
-* text=auto
+
+# Normalise text files to LF in the repository.
+* text=auto eol=lf
+
+# Shell scripts must keep LF endings so they run correctly on Unix-like systems.
+*.sh text eol=lf
+
+# Python and project metadata should be treated as text.
+*.py text eol=lf
+*.md text eol=lf
+*.toml text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.json text eol=lf
+*.txt text eol=lf
+*.cfg text eol=lf
+*.ini text eol=lf
+*.example text eol=lf
+
+# GitHub and security-reporting artefacts.
+*.sarif text eol=lf
+*.lock text eol=lf
+
+# Test fixtures that are intentionally text despite model-like names.
+tests/fixtures/safe_repo/*.fake text eol=lf
+tests/fixtures/safetensors/minimal.safetensors text eol=lf
+
+# Real model artefacts and binary-like files must not be line-ending normalised.
+*.gguf binary
+*.safetensors binary
+*.onnx binary
+*.bin binary
+*.pt binary
+*.pth binary
+*.pkl binary
+*.pickle binary
+*.joblib binary
+*.h5 binary
+*.hdf5 binary
+*.ckpt binary
+*.mar binary
+*.pb binary
+*.so binary
+*.dylib binary
+*.dll binary
+*.exe binary
+
+# Archives and generated binary artefacts.
+*.zip binary
+*.tar binary
+*.tar.gz binary
+*.tgz binary
+*.whl binary
+*.gz binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.pdf binary

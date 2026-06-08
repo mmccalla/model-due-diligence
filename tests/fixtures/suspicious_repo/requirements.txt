@@ -1,1 +1,11 @@
+# Deliberately vulnerable dependency fixture for model-due-diligence tests.
+#
+# This file is intentionally small and synthetic. It exists so tests can
+# exercise dependency-file discovery, inventory classification and optional
+# pip-audit integration without adding real application dependencies.
+#
+# Do not install this file into a development or production environment.
+# Do not update this version automatically unless the associated tests are
+# updated to preserve the intended vulnerable-fixture behaviour.
+
 requests==2.31.0

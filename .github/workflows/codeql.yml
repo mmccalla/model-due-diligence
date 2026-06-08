@@ -1,19 +1,58 @@
 name: CodeQL
+
 on:
   push:
     branches: ["main"]
   pull_request:
+    branches: ["main"]
+  workflow_dispatch:
+  schedule:
+    - cron: "27 3 * * 1"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: codeql-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   analyze:
+    name: Analyse Python
     runs-on: ubuntu-latest
+    timeout-minutes: 20
+
     permissions:
       security-events: write
       packages: read
       actions: read
       contents: read
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: github/codeql-action/init@v3
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install package metadata dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev]"
+
+      - name: Initialise CodeQL
+        uses: github/codeql-action/init@v3
         with:
           languages: python
-      - uses: github/codeql-action/analyze@v3
+          queries: security-extended,security-and-quality
+
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v3
+
+      - name: Perform CodeQL analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:python"

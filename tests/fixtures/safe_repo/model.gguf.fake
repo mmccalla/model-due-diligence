@@ -1,1 +1,9 @@
-GGUF fake fixture.
+This is a deliberately harmless text fixture for model-due-diligence tests.
+
+It is named model.gguf.fake so that tests can exercise file inventory,
+hashing, safe text handling and report generation without including a real
+model artefact in the repository.
+
+This file is not a valid GGUF model.
+It must not be loaded by any model runtime.
+It contains no executable code, credentials or binary payloads.

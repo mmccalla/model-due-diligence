@@ -12,3 +12,101 @@ build/
 model-audit-report/
 audit*/
 .env
+
+# Python virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Python caches and bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.pyright/
+
+# Test, coverage and type-checking outputs
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+.junit_cache/
+
+# Build, packaging and distribution artefacts
+build/
+dist/
+*.egg-info/
+.eggs/
+*.whl
+*.tar.gz
+
+# Local development and editor files
+.DS_Store
+.idea/
+.vscode/settings.json
+.vscode/launch.json
+.vscode/tasks.json
+*.swp
+*.swo
+
+# Environment files and local secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+id_rsa
+id_ed25519
+
+# Generated audit reports and scanner outputs
+model-audit-report/
+audit*/
+audit-*/
+audit_*/
+model_due_diligence_report.md
+model_due_diligence_report.json
+model_due_diligence_report.sarif
+modelscan.json
+semgrep.json
+bandit.json
+pip-audit-*.json
+detect-secrets.json
+
+# Large or real model artefacts should not be committed
+*.gguf
+*.safetensors
+*.onnx
+*.bin
+*.pt
+*.pth
+*.pkl
+*.pickle
+*.joblib
+*.h5
+*.hdf5
+*.ckpt
+*.mar
+*.pb
+
+# Keep deliberately small text fixtures with model-like names
+!tests/fixtures/safe_repo/*.fake
+!tests/fixtures/safetensors/minimal.safetensors
+
+# Logs and temporary files
+*.log
+*.tmp
+*.temp
+.cache/
+tmp/
+temp/
+
+# Dependency/tool caches
+pip-wheel-metadata/
+.pip-tools/
+.tox/
+.nox/
