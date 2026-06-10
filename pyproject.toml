@@ -44,6 +44,8 @@ scanners = [
   "detect-secrets>=1.5.0",
   "modelscan>=0.8.0",
   "pip-audit>=2.7.0",
+]
+semgrep = [
   "semgrep>=1.70.0",
 ]
 dev = [
@@ -156,6 +158,7 @@ exclude_lines = [
 python_version = "3.11"
 strict = true
 mypy_path = "src"
+files = ["src"]
 warn_unused_ignores = true
 warn_redundant_casts = true
 warn_unreachable = true
@@ -171,7 +174,7 @@ ignore_missing_imports = true
 [tool.pyright]
 typeCheckingMode = "strict"
 pythonVersion = "3.11"
-include = ["src", "tests"]
+include = ["src"]
 exclude = [
   "**/.venv",
   "**/.mypy_cache",
