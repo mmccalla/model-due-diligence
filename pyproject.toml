@@ -82,6 +82,9 @@ include = [
   "/scripts",
   "/README.md",
   "/LICENSE",
+  "/CHANGELOG.md",
+  "/CONTRIBUTING.md",
+  "/SECURITY.md",
   "/pyproject.toml",
 ]
 exclude = [

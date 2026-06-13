@@ -20,17 +20,17 @@ from model_due_diligence.domain.models import AuditReport
 class EnhancedJSONEncoder(json.JSONEncoder):
     """JSON encoder for dataclasses, enums and paths used in reports."""
 
-    def default(self, value: object) -> Any:
-        if dataclasses.is_dataclass(value) and not isinstance(value, type):
-            return dataclasses.asdict(value)
+    def default(self, o: object) -> Any:
+        if dataclasses.is_dataclass(o) and not isinstance(o, type):
+            return dataclasses.asdict(o)
 
-        if isinstance(value, Enum):
-            return value.value
+        if isinstance(o, Enum):
+            return o.value
 
-        if isinstance(value, Path):
-            return str(value)
+        if isinstance(o, Path):
+            return str(o)
 
-        return super().default(value)
+        return super().default(o)
 
 
 def write_json_report(report: AuditReport, path: Path) -> None:

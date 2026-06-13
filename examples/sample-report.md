@@ -1,32 +1,26 @@
 # Sample Report
 
-Run `mdd tests/fixtures/safe_repo --out ./audit` to generate a real report.
+This sample is taken from a real scan of the bundled `tests/fixtures/suspicious_repo` fixture using native scanners only:
 
-# Sample Model Due Diligence Report
+```zsh
+mdd tests/fixtures/suspicious_repo --out ./audit-suspicious --skip-external
+```
 
-This sample illustrates the expected shape of a generated `model-due-diligence` Markdown report.
-
-It is not a real scan result. Generate a real report with:
+For a clean baseline, scan the safe fixture:
 
 ```zsh
 mdd tests/fixtures/safe_repo --out ./audit-smoke --fail-on critical --skip-external
 ```
 
-For a fuller local scan that includes optional external scanners, run:
-
-```zsh
-mdd tests/fixtures/suspicious_repo --out ./audit-suspicious --fail-on high
-```
-
 ## Report Artefacts
 
-A normal run should produce:
+A normal run produces:
 
 ```text
-audit-smoke/
+audit-suspicious/
 ├── model_due_diligence_report.md
 ├── model_due_diligence_report.json
-└── model_due_diligence_report.sarif   # optional / planned
+└── model_due_diligence_report.sarif
 ```
 
 When external scanners run, additional raw evidence files may also be present:
@@ -43,31 +37,33 @@ detect-secrets.json
 
 | Field | Example Value |
 |---|---:|
-| Risk level | LOW |
-| Risk score | 3 / 100 |
+| Risk level | MEDIUM |
+| Risk score | 53 / 100 |
 | Files scanned | 2 |
-| Findings | 1 |
-| High findings | 0 |
-| Medium findings | 0 |
-| Low findings | 0 |
-| Info findings | 1 |
+| Findings | 4 |
+| High findings | 1 |
+| Medium findings | 2 |
+| Low findings | 1 |
+| Info findings | 0 |
 
 ## Example Finding
 
 | Severity | Category | File | Message | Recommendation |
 |---|---|---|---|---|
-| INFO | `lower_risk_model_format` | `model.gguf.fake` | Lower-risk model-like format detected. | Verify provenance, hash and first-run sandboxing before operational use. |
+| HIGH | `python_ast_dangerous_call` | `suspicious.py` | Dangerous call detected: os.system. | Review whether this call can execute during import, setup or model loading. |
+| MEDIUM | `script_or_executable` | `suspicious.py` | Script or executable file present. | Review manually before running or importing the repository. |
+| MEDIUM | `suspicious_text:shell_execution` | `suspicious.py` | Suspicious text pattern detected: shell_execution. | Review whether shell execution can occur during import, setup or model loading. |
 
 ## Example File Inventory
 
 | Category | Extension | Executable | Size | SHA-256 | Path |
 |---|---:|---:|---:|---|---|
-| `other` | `.md` | `false` | 128 | `<sha256>` | `README.md` |
-| `lower_risk_model_format` | `.fake` | `false` | 64 | `<sha256>` | `model.gguf.fake` |
+| `dependency_or_build_file` | `.txt` | `false` | 530 | `15b331eaae186511da0b7ce135ff307d02b969a0f02d466d6eda0b7810beafa1` | `requirements.txt` |
+| `script_or_executable` | `.py` | `false` | 470 | `2d9ffd93e7c4212ba4f60618048041e52341da45ee1c68355127a19ee1b2d33f` | `suspicious.py` |
 
 ## Interpretation
 
-A LOW result does not prove that a model is safe. It means only that this static due-diligence pass did not identify the supported static artefact risks it is designed to detect.
+A MEDIUM result means reviewable findings exist. It does **not** prove that a model is malicious, but it does mean you should understand every finding before loading or importing the artefact.
 
 Before loading or importing any model artefact, use the broader control pattern:
 
@@ -86,13 +82,4 @@ Official or reputable source
 
 ## Known Limitations
 
-Static scanning cannot reliably detect:
-
-- malicious behaviour encoded directly into model weights;
-- sleeper-agent or trigger-based backdoors;
-- training-data poisoning;
-- all unsafe deserialisation evasions;
-- prompt-injection obedience in downstream RAG or agent workflows;
-- data exfiltration behaviour that only appears during runtime.
-
-Use generated reports as review evidence, not as an automated trust verdict.
+Static scanning cannot reliably detect weight-level backdoors, sleeper-agent behaviour, training-data poisoning, or runtime-only exfiltration. See [docs/limitations.md](../docs/limitations.md).

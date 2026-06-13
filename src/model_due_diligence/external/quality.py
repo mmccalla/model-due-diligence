@@ -19,15 +19,19 @@ from model_due_diligence.domain.models import (
 from model_due_diligence.external.command_runner import run_command
 
 
+def scanner_project_root() -> Path:
+    """Return the installed model-due-diligence repository root."""
+
+    return Path(__file__).resolve().parents[3]
+
+
 class QualitySelfCheckAdapter:
     """Run project quality self-checks against this repository."""
 
     def run(self, context: ScanContext) -> list[ExternalScannerResult]:
         """Run all configured quality self-checks."""
 
-        project_root = (
-            context.root if (context.root / "pyproject.toml").exists() else Path.cwd()
-        )
+        project_root = scanner_project_root()
         targets = self._quality_targets(project_root)
 
         adapters = (
@@ -59,9 +63,7 @@ class QualitySelfCheckAdapter:
             cwd=project_root,
             timeout_seconds=context.timeout_seconds,
         )
-        return ExternalScannerResult(
-            result, self._normalise_result(result, "Ruff format check failed.")
-        )
+        return ExternalScannerResult(result, self._normalise_result(result, "Ruff format check failed."))
 
     def _run_ruff_lint_check(
         self,
@@ -75,22 +77,16 @@ class QualitySelfCheckAdapter:
             cwd=project_root,
             timeout_seconds=context.timeout_seconds,
         )
-        return ExternalScannerResult(
-            result, self._normalise_result(result, "Ruff lint check failed.")
-        )
+        return ExternalScannerResult(result, self._normalise_result(result, "Ruff lint check failed."))
 
-    def _run_pyright(
-        self, context: ScanContext, project_root: Path
-    ) -> ExternalScannerResult:
+    def _run_pyright(self, context: ScanContext, project_root: Path) -> ExternalScannerResult:
         result = run_command(
             tool="self_pyright",
             command=["pyright"],
             cwd=project_root,
             timeout_seconds=context.timeout_seconds,
         )
-        return ExternalScannerResult(
-            result, self._normalise_result(result, "Pyright type check failed.")
-        )
+        return ExternalScannerResult(result, self._normalise_result(result, "Pyright type check failed."))
 
     def _run_mypy(
         self,
@@ -104,9 +100,7 @@ class QualitySelfCheckAdapter:
             cwd=project_root,
             timeout_seconds=context.timeout_seconds,
         )
-        return ExternalScannerResult(
-            result, self._normalise_result(result, "mypy type check failed.")
-        )
+        return ExternalScannerResult(result, self._normalise_result(result, "mypy type check failed."))
 
     @staticmethod
     def _normalise_result(result: CommandResult, failure_message: str) -> list[Finding]:
@@ -118,8 +112,7 @@ class QualitySelfCheckAdapter:
                     file="",
                     message=f"{result.tool} is not installed or not available on PATH.",
                     recommendation=(
-                        "Run ./scripts/dev-setup.sh and activate the virtual environment before "
-                        "running self-checks."
+                        "Run ./scripts/dev-setup.sh and activate the virtual environment before running self-checks."
                     ),
                     scanner=result.tool,
                 )
@@ -142,9 +135,7 @@ class QualitySelfCheckAdapter:
 
     @staticmethod
     def _evidence(result: CommandResult, max_length: int = 1_000) -> str | None:
-        combined = "\n".join(
-            value for value in (result.stderr.strip(), result.stdout.strip()) if value
-        )
+        combined = "\n".join(value for value in (result.stderr.strip(), result.stdout.strip()) if value)
         if not combined:
             return None
         return combined[:max_length]

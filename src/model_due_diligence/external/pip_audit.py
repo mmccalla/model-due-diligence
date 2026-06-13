@@ -57,9 +57,7 @@ class PipAuditAdapter:
             return [context.target] if context.target.name in DEPENDENCY_FILE_NAMES else []
 
         return sorted(
-            path
-            for path in context.target.rglob("*")
-            if path.is_file() and path.name in DEPENDENCY_FILE_NAMES and path.name == "requirements.txt"
+            path for path in context.target.rglob("*") if path.is_file() and path.name in DEPENDENCY_FILE_NAMES
         )
 
     @staticmethod

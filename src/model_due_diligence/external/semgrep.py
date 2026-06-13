@@ -64,7 +64,7 @@ class SemgrepAdapter:
                     category="scanner_unavailable",
                     file="",
                     message="Semgrep is not installed or not available on PATH.",
-                    recommendation="Install the scanner extras and rerun: python -m pip install -e '.[scanners]'",
+                    recommendation=("Install Semgrep and rerun: python -m pip install -e '.[scanners,semgrep]'"),
                     scanner=self.tool_name,
                 )
             ]

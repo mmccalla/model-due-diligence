@@ -5,7 +5,9 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
-from model_due_diligence.external import command_runner
+import pytest
+
+import model_due_diligence.external.command_runner as command_runner_module
 from model_due_diligence.external.command_runner import TIMEOUT_EXIT_CODE, run_command, truncate
 
 
@@ -85,7 +87,9 @@ def test_output_files_are_recorded(tmp_path: Path) -> None:
     assert result.output_files == [str(output_path)]
 
 
-def test_run_command_resolves_tool_from_active_interpreter_directory(monkeypatch, tmp_path: Path) -> None:
+def test_run_command_resolves_tool_from_active_interpreter_directory(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
     venv_bin = tmp_path / "venv-bin"
     venv_bin.mkdir()
     tool_path = venv_bin / "fake-tool"
@@ -98,7 +102,7 @@ def test_run_command_resolves_tool_from_active_interpreter_directory(monkeypatch
     python_link.symlink_to(real_python_dir / "python3")
 
     monkeypatch.setenv("PATH", "/usr/bin:/bin")
-    monkeypatch.setattr(command_runner.sys, "executable", str(python_link))
+    monkeypatch.setattr(command_runner_module.sys, "executable", str(python_link))  # type: ignore[attr-defined]
 
     result = run_command("fake-tool", ["fake-tool"], cwd=tmp_path, timeout_seconds=10)
 

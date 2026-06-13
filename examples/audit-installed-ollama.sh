@@ -6,43 +6,44 @@ usage() {
 Usage:
   ./examples/audit-installed-ollama.sh <ollama-model-name> [output-dir]
 
-Example:
-  ./examples/audit-installed-ollama.sh qwen3:4b ./audit-qwen3-ollama
+Resolve an installed Ollama model from the local store and run static due
+diligence on its staged artefacts. The Ollama server does not need to be running.
 
-Notes:
-  - The scan resolves an installed Ollama model from the local manifest/blob store.
-  - A temporary staging directory is created so the scanner can inspect friendly filenames.
-  - The model is not loaded or executed by this script.
+Environment overrides (optional):
+  MDD_TIMEOUT_SECONDS   Per-tool timeout (default: 300)
+  MDD_FAIL_ON           Risk threshold: low|medium|high|critical (default: high)
+  MDD_SKIP_EXTERNAL     Set to 1 or true to skip external scanners
+
+Examples:
+  ./examples/audit-installed-ollama.sh qwen3:4b ./audit-qwen3-ollama
 USAGE
 }
 
-if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
-  usage
-  exit 0
-fi
-
-if [[ $# -lt 1 || $# -gt 2 ]]; then
+if [[ $# -lt 1 ]]; then
   usage >&2
   exit 2
 fi
 
 model_name="$1"
-out_dir="${2:-./audit-ollama}"
+out_dir="${2:-${MDD_OUTPUT_DIR:-./model-audit-report}}"
+timeout_seconds="${MDD_TIMEOUT_SECONDS:-300}"
+fail_on="${MDD_FAIL_ON:-high}"
+skip_external_flag=()
+
+if [[ "${MDD_SKIP_EXTERNAL:-false}" == "1" || "${MDD_SKIP_EXTERNAL:-false}" == "true" ]]; then
+  skip_external_flag=(--skip-external)
+fi
 
 if ! command -v mdd-ollama >/dev/null 2>&1; then
-  echo "ERROR: mdd-ollama is not installed or not available on PATH." >&2
-  echo "Install the project first, for example: python -m pip install -e '.[dev,scanners]'" >&2
+  echo "ERROR: mdd-ollama is not installed. Run ./scripts/dev-setup.sh and activate .venv." >&2
   exit 127
 fi
 
-echo "Scanning installed Ollama model."
-echo "Model name: $model_name"
-echo "Output directory: $out_dir"
-
+echo "Scanning installed Ollama model: ${model_name}"
 mdd-ollama "$model_name" \
   --out "$out_dir" \
-  --fail-on high
+  --timeout "$timeout_seconds" \
+  --fail-on "$fail_on" \
+  "${skip_external_flag[@]}"
 
-echo "Audit complete."
-echo "Markdown report: $out_dir/model_due_diligence_report.md"
-echo "JSON report: $out_dir/model_due_diligence_report.json"
+echo "Reports written to: ${out_dir}"

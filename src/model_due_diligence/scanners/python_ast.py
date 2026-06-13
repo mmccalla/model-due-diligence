@@ -64,7 +64,7 @@ class PythonAstScanner:
                 continue
 
             call_name = self._resolve_call_name(node.func)
-            if call_name in PYTHON_DANGEROUS_CALLS:
+            if call_name is not None and call_name in PYTHON_DANGEROUS_CALLS:
                 findings.append(self._dangerous_call_finding(relative, call_name, node))
 
             if self._is_transformers_remote_code_enabled(node):
@@ -108,14 +108,14 @@ class PythonAstScanner:
         )
 
     @staticmethod
-    def _resolve_call_name(func: ast.AST) -> tuple[str, str] | tuple[()]:
+    def _resolve_call_name(func: ast.AST) -> tuple[str, str] | None:
         if isinstance(func, ast.Name):
             return ("builtins", func.id)
 
         if isinstance(func, ast.Attribute) and isinstance(func.value, ast.Name):
             return (func.value.id, func.attr)
 
-        return ()
+        return None
 
     @staticmethod
     def _is_transformers_remote_code_enabled(node: ast.Call) -> bool:
