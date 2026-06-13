@@ -292,6 +292,8 @@ The score is intentionally conservative. It is a decision aid, not an automated 
 pip install model-due-diligence
 ```
 
+If PyPI is not yet populated, install the latest GitHub release wheel instead (see [`docs/publishing.md`](docs/publishing.md)).
+
 For optional external scanner integrations:
 
 ```zsh
