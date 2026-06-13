@@ -1,12 +1,5 @@
 #!/usr/bin/env bash
 set -euo pipefail
-python -m venv .venv
-source .venv/bin/activate
-python -m pip install --upgrade pip
-python -m pip install -e ".[dev,scanners]"
-
-#!/usr/bin/env bash
-set -euo pipefail
 
 usage() {
   cat <<'USAGE'
@@ -96,7 +89,7 @@ python -m pip install --upgrade pip setuptools wheel
 
 if [[ "$install_scanners" == "true" ]]; then
   echo "Installing package with development and scanner dependencies."
-  python -m pip install -e ".[dev,scanners]"
+  python -m pip install -e ".[dev,scanners,semgrep]"
 else
   echo "Installing package with development dependencies only."
   python -m pip install -e ".[dev]"

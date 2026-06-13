@@ -1,8 +1,41 @@
 
 # Model Due Diligence
+
+[![CI](https://github.com/mmccalla/model-due-diligence/actions/workflows/ci.yml/badge.svg)](https://github.com/mmccalla/model-due-diligence/actions/workflows/ci.yml)
+[![CodeQL](https://github.com/mmccalla/model-due-diligence/actions/workflows/codeql.yml/badge.svg)](https://github.com/mmccalla/model-due-diligence/actions/workflows/codeql.yml)
+[![PyPI](https://img.shields.io/pypi/v/model-due-diligence)](https://pypi.org/project/model-due-diligence/)
+[![Python](https://img.shields.io/pypi/pyversions/model-due-diligence)](https://pypi.org/project/model-due-diligence/)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
+
 <p align="center">
   <img src="docs/assets/model-due-diligence-hero.png" alt="model-due-diligence static supply-chain security infographic" width="100%" />
 </p>
+
+> **Alpha software.** Static supply-chain gate for local AI model files and cloned repositories — before you load them into Ollama, llama.cpp, LM Studio or Transformers.
+
+**TL;DR:** Run `mdd` on a model path. Review the report. Do not treat a clean scan as proof of safety.
+
+```zsh
+pip install model-due-diligence
+mdd ./path/to/model-or-repo --out ./audit --skip-external
+```
+
+Try the bundled demo fixture (no download required):
+
+```zsh
+git clone https://github.com/mmccalla/model-due-diligence.git
+cd model-due-diligence
+./scripts/dev-setup.sh && source .venv/bin/activate
+./examples/demo.sh
+```
+
+Or after cloning, run the demo directly:
+
+```zsh
+./examples/demo.sh ./audit-demo
+```
+
+**Canonical command:** `mdd` (also available as `model-due-diligence` and `python -m model_due_diligence`).
 
 `model-due-diligence` is a Python command-line tool for performing **static supply-chain due diligence** on local AI model files and cloned model repositories before they are imported into runtimes such as Ollama, llama.cpp, LM Studio or Transformers.
 
@@ -61,7 +94,7 @@ It checks:
 - high-entropy non-model files;
 - Git provenance, origin remote, current commit, dirty worktree and Git LFS listing where available;
 - external scanner output from ModelScan, Semgrep, Bandit, pip-audit and detect-secrets;
-- optional quality self-checks using Ruff, Pyright and mypy.
+- optional quality self-checks using Ruff, Pyright and mypy **against this scanner project** when `--quality-self-check` is enabled;
 
 The tool produces:
 
@@ -204,12 +237,12 @@ Rules:
 | Python AST dangerous-call detection | Yes | Bandit / CodeQL | Covered |
 | Binary string indicators | Yes | No | Basic coverage |
 | High-entropy anomaly detection | Yes | No | Basic coverage |
-| Secrets detection | Yes | detect-secrets | Covered |
-| Dependency vulnerability checks | No | pip-audit / Dependabot | Covered for `requirements.txt` |
+| Pattern-based secret indicators | Yes (heuristic) | detect-secrets | Covered |
+| Dependency vulnerability checks | No | pip-audit | Covered for supported dependency files |
 | Git provenance checks | Yes | No | Basic coverage |
-| Project code quality | No | Ruff / Pyright / mypy / pytest | Covered |
-| Repository semantic security analysis | No | CodeQL | Covered in GitHub Actions |
-| SARIF output | Yes | CodeQL native SARIF | Partial |
+| This project's code quality | No | Ruff / Pyright / mypy / pytest | CI only; optional `--quality-self-check` |
+| This repository semantic security analysis | No | CodeQL | CI only — does not scan your model checkout |
+| SARIF output | Yes | CodeQL native SARIF | Covered (default output format) |
 | SBOM generation | No | No | Planned |
 | Sigstore / SLSA provenance | No | No | Planned |
 | Licence compatibility checks | No | No | Planned |
@@ -253,13 +286,25 @@ The score is intentionally conservative. It is a decision aid, not an automated 
 - a Unix-like shell for the provided scripts;
 - optional external scanner CLIs if you want full coverage.
 
-### Recommended local setup
+### Install from PyPI
+
+```zsh
+pip install model-due-diligence
+```
+
+For optional external scanner integrations:
+
+```zsh
+pip install "model-due-diligence[scanners,semgrep]"
+```
+
+### Development setup
 
 ```zsh
 python3 -m venv .venv
 source .venv/bin/activate
 python -m pip install --upgrade pip
-python -m pip install -e ".[dev,scanners]"
+python -m pip install -e ".[dev,scanners,semgrep]"
 ```
 
 Or use the setup script:
@@ -610,6 +655,7 @@ model-due-diligence/
 │   ├── audit-installed-ollama.sh
 │   ├── audit-huggingface-clone.sh
 │   ├── audit-local-gguf.sh
+│   ├── demo.sh
 │   └── sample-report.md
 ├── scripts/
 │   ├── build-package.sh
@@ -640,6 +686,10 @@ model-due-diligence/
 ├── pyproject.toml
 └── README.md
 ```
+
+The published PyPI wheel contains only `src/model_due_diligence/`. The optional `skills/` and `skills_docs/` directories are contributor/agent-development libraries for this repository and are **not** part of the installable CLI package.
+
+Release and PyPI publishing steps are documented in [`docs/publishing.md`](docs/publishing.md).
 
 ---
 
@@ -709,7 +759,7 @@ Planned or candidate improvements:
 
 ## Contributing
 
-See [`docs/contribution-guide.md`](docs/contribution-guide.md).
+See [`CONTRIBUTING.md`](CONTRIBUTING.md) and [`docs/contribution-guide.md`](docs/contribution-guide.md).
 
 Before opening a pull request, run:
 

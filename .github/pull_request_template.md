@@ -1,13 +1,5 @@
 ## Summary
 
-## Checks
-- [ ] Ruff
-- [ ] Pyright
-- [ ] mypy
-- [ ] pytest
-
-## Summary
-
 Briefly describe what changed and why.
 
 ## Change Type

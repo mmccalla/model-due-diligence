@@ -12,13 +12,10 @@ import sys
 from collections.abc import Sequence
 from pathlib import Path
 
+from model_due_diligence import __version__
 from model_due_diligence.app import ModelDueDiligenceApp
-from model_due_diligence.config.defaults import (
-    APP_NAME,
-    DEFAULT_FAIL_ON,
-    DEFAULT_OUTPUT_DIRECTORY,
-    DEFAULT_TIMEOUT_SECONDS,
-)
+from model_due_diligence.cli_common import add_scan_options
+from model_due_diligence.config.defaults import APP_NAME
 from model_due_diligence.domain.models import AuditReport, ReportFormat, RiskLevel, ScanContext
 from model_due_diligence.reporting.json_report import write_json_report_to_directory
 from model_due_diligence.reporting.markdown_report import write_markdown_report_to_directory
@@ -41,45 +38,11 @@ def parse_args(argv: Sequence[str]) -> argparse.Namespace:
     )
 
     parser.add_argument("target", help="Path to a model file or model directory.")
-    parser.add_argument(
-        "--out",
-        default=DEFAULT_OUTPUT_DIRECTORY,
-        help=f"Output report directory. Default: {DEFAULT_OUTPUT_DIRECTORY}",
-    )
-    parser.add_argument(
-        "--timeout",
-        type=int,
-        default=DEFAULT_TIMEOUT_SECONDS,
-        help=f"Per-tool timeout in seconds. Default: {DEFAULT_TIMEOUT_SECONDS}",
-    )
-    parser.add_argument(
-        "--format",
-        dest="formats",
-        default="markdown,json,sarif",
-        help="Comma-separated report formats to write: markdown,json,sarif. Default: markdown,json,sarif",
-    )
-    parser.add_argument("--skip-external", action="store_true", help="Skip all optional external scanner tools.")
-    parser.add_argument("--skip-modelscan", action="store_true", help="Skip ModelScan.")
-    parser.add_argument("--skip-semgrep", action="store_true", help="Skip Semgrep.")
-    parser.add_argument("--skip-bandit", action="store_true", help="Skip Bandit.")
-    parser.add_argument("--skip-pip-audit", action="store_true", help="Skip pip-audit.")
-    parser.add_argument("--skip-detect-secrets", action="store_true", help="Skip detect-secrets.")
-    parser.add_argument("--skip-quality-self-check", action="store_true", help="Skip project quality self-checks.")
-    parser.add_argument(
-        "--quality-self-check",
-        action="store_true",
-        help="Run Ruff, Pyright and mypy against this project as optional self-checks.",
-    )
-    parser.add_argument(
-        "--fail-on",
-        choices=[level.value.lower() for level in RiskLevel],
-        default=DEFAULT_FAIL_ON.lower(),
-        help=f"Return non-zero when risk is at or above this level. Default: {DEFAULT_FAIL_ON.lower()}",
-    )
+    add_scan_options(parser)
     parser.add_argument(
         "--version",
         action="version",
-        version=f"{APP_NAME} 0.1.0",
+        version=f"{APP_NAME} {__version__}",
     )
 
     return parser.parse_args(argv)

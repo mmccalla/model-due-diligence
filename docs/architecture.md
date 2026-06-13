@@ -1,9 +1,5 @@
 # Architecture
 
-A modular monolith CLI: CLI -> App -> inventory/scanners/external adapters -> risk scorer -> reports.
-
-# Architecture
-
 ## Purpose
 
 `model-due-diligence` is a Python command-line tool for performing static supply-chain due diligence on local AI model files and cloned model repositories before they are imported into local runtimes such as Ollama, llama.cpp, LM Studio or Transformers.
