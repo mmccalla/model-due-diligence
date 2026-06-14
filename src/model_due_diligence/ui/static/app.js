@@ -450,6 +450,7 @@
     ui.previewButton.disabled = true;
     state.scanStartedAt = Date.now();
     setScanStatus("Running static scan…", "running");
+    disableExportLinks();
     const timer = window.setInterval(function () {
       if (!state.scanRunning || !state.scanStartedAt) return;
       const seconds = Math.floor((Date.now() - state.scanStartedAt) / 1000);
