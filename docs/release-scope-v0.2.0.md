@@ -33,7 +33,7 @@ Ship the **mdd-ui local dashboard** as an installable, documented product alongs
 | 2 | `pyproject.toml` `0.2.0`; CHANGELOG `[0.2.0]` dated | Done (#10) |
 | 3 | `./scripts/run-quality.sh` green on `main` | Done (158 tests, ~83% coverage) |
 | 4 | `pip install -e ".[ui]"` + `mdd-ui` serves `/` and `/api/v1/health` | Done (local verify) |
-| 5 | Tag `v0.2.0` → GitHub release + PyPI publish | **Pending** (requires tag push + PyPI trusted publisher) |
+| 5 | Tag `v0.2.0` → GitHub release + PyPI publish | Done ([release run](https://github.com/mmccalla/model-due-diligence/actions/runs/27513017317)) |
 | 6 | README install/first-run for CLI and dashboard | Done |
 
 **Does not require:** SSE backend, scanner roadmap, full WCAG audit, or beta classifier bump.
