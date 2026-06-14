@@ -46,9 +46,10 @@ class ScanTargetType(StrEnum):
 class HealthResponse(BaseModel):
     """API health and version information."""
 
-    status: Literal["ok"] = "ok"
+    status: Literal["ok", "degraded"] = "ok"
     version: str
     service: Literal["mdd-ui"] = "mdd-ui"
+    scanner_engine: Literal["ready", "unavailable"] = "ready"
 
 
 class OllamaStatusResponse(BaseModel):
@@ -127,6 +128,7 @@ class ScanPreviewResponse(BaseModel):
 class ScanReportPaths(BaseModel):
     """Filesystem paths for generated report artefacts."""
 
+    scan_id: str
     markdown_path: str | None = None
     json_path: str | None = None
     sarif_path: str | None = None

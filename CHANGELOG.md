@@ -5,6 +5,14 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- Optional `mdd-ui` local dashboard API (`[ui]` extra) with versioned `/api/v1/` routes
+- Ollama discovery with API and filesystem fallback, explicit interaction states, scan preview/run endpoints, export downloads and managed scan output retention
+- Documentation: [`docs/mdd-ui.md`](docs/mdd-ui.md), wireframe component tree
+
 ## [0.1.0] - 2026-06-14
 
 ### Added

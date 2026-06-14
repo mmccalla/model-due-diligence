@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 import os
 from dataclasses import dataclass
 from pathlib import Path
@@ -17,6 +18,8 @@ from model_due_diligence.ui.schemas import (
     OllamaModelSummary,
     OllamaStatusResponse,
 )
+
+logger = logging.getLogger(__name__)
 
 
 class HttpClient(Protocol):
@@ -200,9 +203,19 @@ def _fetch_tags_payload(
             with httpx.Client(timeout=settings.timeout_seconds) as httpx_client:
                 http_response = httpx_client.get(url)
                 if http_response.status_code != HTTP_OK:
+                    logger.warning(
+                        "Ollama tags request returned status=%s host=%s",
+                        http_response.status_code,
+                        settings.host,
+                    )
                     return None
                 payload = http_response.json()
-    except Exception:
+    except Exception as exc:
+        logger.warning(
+            "Ollama API probe failed host=%s error_type=%s",
+            settings.host,
+            exc.__class__.__name__,
+        )
         return None
 
     return payload if isinstance(payload, dict) else None
