@@ -12,6 +12,21 @@ source .venv/bin/activate
 ./scripts/run-quality.sh
 ```
 
+## Git commit hygiene
+
+Do not add tool attribution to commits or pull requests:
+
+- No `Co-authored-by: Cursor <cursoragent@cursor.com>` or similar AI/tool trailers
+- No `Made-with: Cursor` lines in commits, PR bodies, or review comments
+
+After cloning, install the commit hook:
+
+```zsh
+./scripts/setup-git-hooks.sh
+```
+
+If you use Cursor, disable **Settings → Agents → Attribution** (commit and PR attribution).
+
 ## Pull request checklist
 
 - [ ] `./scripts/run-quality.sh` passes locally
