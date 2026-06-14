@@ -1,6 +1,15 @@
 # mdd-ui — Wireframe component tree (Phase 1b target)
 
-Phase 1a delivers the API and interaction-state contracts below. Phase 1b implements this tree.
+Phase 1a delivers the API and interaction-state contracts below. Phase **1b.0** completes pre-frontend cleanup ([`mdd-ui-phase-1b-0.md`](mdd-ui-phase-1b-0.md)). Phase **1b core** implements this tree.
+
+## Phase timeline
+
+| Phase | Branch | Deliverable |
+|-------|--------|-------------|
+| 1a | `feat/mdd-ui-phase-1a` | `/api/v1/` backend, tests, operator docs |
+| 1b.0 | `feat/mdd-ui-phase-1b-0` | Handoff checklist, static scaffold, contract freeze |
+| 1b | `feat/mdd-ui-phase-1b` | Dashboard UI chrome (this component tree) |
+| 1c | TBD | Preview polish, a11y, export UX, usability tests |
 
 ```text
 AppShell
