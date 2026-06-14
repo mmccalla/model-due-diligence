@@ -13,6 +13,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Ollama discovery with API and filesystem fallback, explicit interaction states, scan preview/run endpoints, export downloads and managed scan output retention
 - Documentation: [`docs/mdd-ui.md`](docs/mdd-ui.md), wireframe component tree
 
+### Changed
+
+- Phase 1a hardening: versioned `/api/v1/` routes, unified error contract, `partial_success`/`warning` scan states, managed scan output retention, export downloads, health checks, structured logging
+
+## Phase 1b.0 (in progress on `feat/mdd-ui-phase-1b-0`)
+
+Pre-frontend cleanup milestone — see [`docs/mdd-ui-phase-1b-0.md`](docs/mdd-ui-phase-1b-0.md).
+
+- Static asset directory scaffold at `src/model_due_diligence/ui/static/`
+- Phase handoff checklist and branch map for 1b core implementers
+
 ## [0.1.0] - 2026-06-14
 
 ### Added
