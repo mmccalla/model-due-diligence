@@ -152,6 +152,9 @@ line-ending = "lf"
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-q --cov=src/model_due_diligence --cov-report=term-missing --cov-report=xml"
+markers = [
+  "ollama: optional live Ollama integration tests (skipped when Ollama is unavailable)",
+]
 
 [tool.coverage.run]
 branch = true
