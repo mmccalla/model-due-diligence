@@ -235,6 +235,16 @@ User-visible changes should include release-note wording in the pull request. Se
 - external scanner behaviour;
 - dependency or packaging behaviour.
 
+## Git commit hygiene
+
+Do not add tool attribution to commits or pull requests (for example `Co-authored-by` lines for AI assistants).
+
+After cloning, install the repository commit hook:
+
+```zsh
+./scripts/setup-git-hooks.sh
+```
+
 ## Code Style
 
 Use clear, explicit Python.

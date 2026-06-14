@@ -772,7 +772,7 @@ Planned or candidate improvements:
 
 ## Contributing
 
-See [`CONTRIBUTING.md`](CONTRIBUTING.md) and [`docs/contribution-guide.md`](docs/contribution-guide.md).
+See [`docs/contribution-guide.md`](docs/contribution-guide.md).
 
 Before opening a pull request, run:
 
