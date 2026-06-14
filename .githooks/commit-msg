@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+# Strip Cursor agent attribution trailers from commit messages.
+set -euo pipefail
+
+msg_file="${1:?commit message file}"
+
+python3 - <<'PY' "$msg_file"
+from __future__ import annotations
+
+import sys
+from pathlib import Path
+
+msg_path = Path(sys.argv[1])
+text = msg_path.read_text(encoding="utf-8")
+blocked = (
+    "Co-authored-by: Cursor <cursoragent@cursor.com>",
+    "Made-with: Cursor",
+    "Made with Cursor",
+)
+lines = [line for line in text.splitlines() if line.strip() not in blocked]
+cleaned = "\n".join(lines).rstrip("\n")
+if cleaned:
+    cleaned += "\n"
+msg_path.write_text(cleaned, encoding="utf-8")
+PY

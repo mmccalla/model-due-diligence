@@ -48,6 +48,12 @@ scanners = [
 semgrep = [
   "semgrep>=1.70.0",
 ]
+ui = [
+  "fastapi>=0.115.0",
+  "httpx>=0.27.0",
+  "pydantic>=2.10.0",
+  "uvicorn[standard]>=0.32.0",
+]
 dev = [
   "build>=1.2.1",
   "mypy>=1.10.0",
@@ -57,12 +63,17 @@ dev = [
   "ruff>=0.6.0",
   "twine>=5.1.0",
   "types-setuptools",
+  "fastapi>=0.115.0",
+  "httpx>=0.27.0",
+  "pydantic>=2.10.0",
+  "uvicorn[standard]>=0.32.0",
 ]
 
 [project.scripts]
 model-due-diligence = "model_due_diligence.cli:main"
 mdd = "model_due_diligence.cli:main"
 mdd-ollama = "model_due_diligence.ollama_cli:main"
+mdd-ui = "model_due_diligence.ui.cli:main"
 
 [project.urls]
 Homepage = "https://github.com/mmccalla/model-due-diligence"
@@ -130,6 +141,9 @@ ignore = [
 "tests/fixtures/**/*.py" = [
   "S605",    # Suspicious fixture intentionally contains shell-execution indicators.
 ]
+"src/model_due_diligence/ui/cli.py" = [
+  "PLC0415", # uvicorn is an optional UI dependency imported lazily for clearer errors.
+]
 
 [tool.ruff.format]
 quote-style = "double"
@@ -171,6 +185,10 @@ pretty = true
 [[tool.mypy.overrides]]
 module = [
   "safetensors.*",
+  "fastapi.*",
+  "fastapi",
+  "uvicorn.*",
+  "pydantic.*",
 ]
 ignore_missing_imports = true
 
