@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "model-due-diligence"
-version = "0.1.0"
+version = "0.2.0"
 description = "Static due-diligence scanner for local AI model artefacts and repositories."
 readme = "README.md"
 requires-python = ">=3.11"

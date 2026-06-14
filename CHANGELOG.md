@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-> **Planned v0.2.0** — first PyPI release including the mdd-ui dashboard (`[ui]` extra). Scope and exit criteria: [`docs/release-scope-v0.2.0.md`](docs/release-scope-v0.2.0.md). Version bump in `pyproject.toml` is Phase 1 (not yet applied).
+## [0.2.0] - 2026-06-14
 
 ### Added
 
@@ -44,4 +44,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - This is an **alpha** release. A clean report does not prove a model is safe.
 - See [docs/limitations.md](docs/limitations.md) for full scope boundaries.
 
+[0.2.0]: https://github.com/mmccalla/model-due-diligence/releases/tag/v0.2.0
 [0.1.0]: https://github.com/mmccalla/model-due-diligence/releases/tag/v0.1.0
