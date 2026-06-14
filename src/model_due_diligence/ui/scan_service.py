@@ -17,7 +17,7 @@ from model_due_diligence.ollama import resolve_installed_model, stage_model_for_
 from model_due_diligence.reporting.json_report import write_json_report_to_directory
 from model_due_diligence.reporting.markdown_report import write_markdown_report_to_directory
 from model_due_diligence.reporting.sarif_report import write_sarif_report_to_directory
-from model_due_diligence.ui.path_validation import resolve_scan_target
+from model_due_diligence.ui.path_validation import resolve_scan_target, sanitize_log_field
 from model_due_diligence.ui.scan_state import derive_scan_interaction_state
 from model_due_diligence.ui.schemas import (
     InteractionState,
@@ -106,10 +106,11 @@ def run_scan(
     """Run a static scan and return a serialised report payload."""
 
     target_label = request.target.strip()
+    target_type_label = "ollama" if request.target_type == ScanTargetType.OLLAMA else "path"
     logger.info(
         "Starting UI scan scan_id=%s target_type=%s",
-        scan_id,
-        request.target_type.value,
+        sanitize_log_field(scan_id),
+        target_type_label,
     )
     prepared = prepare_scan(request, output_dir)
     try:
