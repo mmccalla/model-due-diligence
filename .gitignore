@@ -9,8 +9,6 @@ htmlcov/
 dist/
 build/
 *.egg-info/
-model-audit-report/
-audit*/
 .env
 
 # Python virtual environments
@@ -63,14 +61,15 @@ dist/
 id_rsa
 id_ed25519
 
-# Generated audit reports and scanner outputs
+# Generated audit reports and scanner outputs (never commit — may contain PII)
 model-audit-report/
-audit*/
+audit/
+audit-smoke/
 audit-*/
 audit_*/
-model_due_diligence_report.md
-model_due_diligence_report.json
-model_due_diligence_report.sarif
+**/model_due_diligence_report.md
+**/model_due_diligence_report.json
+**/model_due_diligence_report.sarif
 modelscan.json
 semgrep.json
 bandit.json

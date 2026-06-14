@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+# Block generated audit/scanner outputs from being committed (may contain PII).
+set -euo pipefail
+
+python3 - <<'PY'
+from __future__ import annotations
+
+import fnmatch
+import re
+import subprocess
+import sys
+
+BLOCKED_PATTERNS = (
+    "audit-smoke/*",
+    "audit-smoke/**",
+    "audit/*",
+    "audit/**",
+    "audit-*/*",
+    "audit-*/**",
+    "audit_*/*",
+    "audit_*/**",
+    "model-audit-report/*",
+    "model-audit-report/**",
+    "**/model_due_diligence_report.md",
+    "**/model_due_diligence_report.json",
+    "**/model_due_diligence_report.sarif",
+    "**/modelscan.json",
+    "**/semgrep.json",
+    "**/bandit.json",
+    "**/detect-secrets.json",
+)
+
+BLOCKED_REGEX = re.compile(r"(^|/)pip-audit-[^/]+\.json$")
+
+
+def is_blocked(path: str) -> bool:
+    normalized = path.lstrip("./")
+    if any(fnmatch.fnmatch(normalized, pattern) for pattern in BLOCKED_PATTERNS):
+        return True
+    return BLOCKED_REGEX.search(normalized) is not None
+
+
+result = subprocess.run(
+    ["git", "diff", "--cached", "--name-only", "--diff-filter=ACM"],
+    check=True,
+    capture_output=True,
+    text=True,
+)
+staged = [line.strip() for line in result.stdout.splitlines() if line.strip()]
+blocked = [path for path in staged if is_blocked(path)]
+if blocked:
+    print("Refusing commit: audit/scanner output must not be committed (may contain PII):", file=sys.stderr)
+    for path in blocked:
+        print(f"  - {path}", file=sys.stderr)
+    sys.exit(1)
+PY

@@ -80,10 +80,11 @@ jobs:
             --fail-on critical \
             --skip-external
 
-      - name: Upload smoke-test audit report
-        uses: actions/upload-artifact@v6
-        if: always()
-        with:
-          name: audit-smoke-python-${{ matrix.python-version }}
-          path: ./audit-smoke/
-          if-no-files-found: ignore
+      - name: Verify no audit outputs are tracked
+        run: |
+          set -euo pipefail
+          tracked="$(git ls-files)"
+          if printf '%s\n' "$tracked" | rg -i '(^|/)audit(-|_|/|smoke)|model-audit-report|model_due_diligence_report\.(md|json|sarif)$|(^|/)modelscan\.json$|(^|/)semgrep\.json$|(^|/)bandit\.json$|(^|/)detect-secrets\.json$|(^|/)pip-audit-[^/]+\.json$'; then
+            echo "ERROR: audit or scanner output files must not be tracked in git." >&2
+            exit 1
+          fi

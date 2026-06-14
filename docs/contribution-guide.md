@@ -235,6 +235,17 @@ User-visible changes should include release-note wording in the pull request. Se
 - external scanner behaviour;
 - dependency or packaging behaviour.
 
+## Audit outputs and PII
+
+Scan reports (`model_due_diligence_report.*`, directories named `audit*`, and raw scanner JSON) can contain **paths, hostnames, usernames and other PII** from the scanned target.
+
+- Never commit audit or scanner output to git.
+- Never upload audit reports as GitHub Actions artefacts or attach them to issues/PRs.
+- Keep outputs under ignored local directories (for example `./audit-smoke/` during development).
+- mdd-ui stores reports under `~/.cache/model-due-diligence/ui-scans/` by default.
+
+Install hooks to block accidental commits: `./scripts/setup-git-hooks.sh`
+
 ## Git commit hygiene
 
 Do not add tool attribution to commits or pull requests (for example `Co-authored-by` lines for AI assistants).

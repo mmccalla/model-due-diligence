@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Install repository git hooks (commit-msg strips Cursor attribution trailers).
+# Install repository git hooks.
 set -euo pipefail
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -13,4 +13,6 @@ fi
 
 mkdir -p "${hooks_dst}"
 install -m 755 "${hooks_src}/commit-msg" "${hooks_dst}/commit-msg"
+install -m 755 "${hooks_src}/pre-commit" "${hooks_dst}/pre-commit"
 echo "Installed ${hooks_dst}/commit-msg"
+echo "Installed ${hooks_dst}/pre-commit"
