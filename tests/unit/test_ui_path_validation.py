@@ -30,3 +30,13 @@ def test_resolve_scan_target_rejects_traversal(tmp_path: Path) -> None:
 def test_resolve_scan_target_raises_for_missing_path(tmp_path: Path) -> None:
     with pytest.raises(FileNotFoundError, match="does not exist"):
         resolve_scan_target(str(tmp_path / "missing"))
+
+
+def test_resolve_scan_target_rejects_path_outside_allowed_roots(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    outside = Path("/var/mdd-ui-path-validation-outside")
+    if outside.exists():
+        pytest.skip("Unexpected existing path during isolation test.")
+    with pytest.raises(ValueError, match="Scan target must be under"):
+        resolve_scan_target(str(outside))
