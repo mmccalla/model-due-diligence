@@ -116,3 +116,7 @@ pip-wheel-metadata/
 .DS_Store
 /skills
 /skills_docs
+AGENTIC_CODING_GLOBAL_SAFETY.md
+AGENTS.md
+CLAUDE.md
+SECURE_AGENTIC_DEVELOPMENT.md
