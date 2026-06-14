@@ -32,7 +32,7 @@ Override bind address only for trusted local networks. The API is designed for l
 ## Security posture
 
 - **Local bind by default** — do not expose `mdd-ui` to untrusted networks without authentication and TLS.
-- **Path scans** — the API can scan any path the operating-system user can read. This is intentional for local due diligence, but operators must treat scan targets as sensitive input.
+- **Path scans** — the API can scan paths under the operator's home directory, system temp directory, or current working directory (same intentional contract as the CLI, confined for localhost use)
 - **Ollama host** — discovery uses `OLLAMA_HOST` (default `http://127.0.0.1:11434`). Pointing this at remote hosts can trigger outbound HTTP from the API process.
 - **No authentication** — Phase 1a assumes a single trusted operator on localhost.
 - **Report retention** — scan artefacts are stored under `~/.cache/model-due-diligence/ui-scans/` and retired after 24 hours or when the directory cap is exceeded.
