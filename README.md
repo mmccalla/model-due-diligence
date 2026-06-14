@@ -386,6 +386,14 @@ mdd ./downloaded-model \
   --format json
 ```
 
+Launch the local dashboard (requires the `[ui]` extra):
+
+```zsh
+pip install "model-due-diligence[ui]"
+mdd-ui
+open http://127.0.0.1:8765/
+```
+
 ---
 
 ## CLI reference
