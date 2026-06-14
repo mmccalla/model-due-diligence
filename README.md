@@ -300,11 +300,12 @@ For optional external scanner integrations:
 pip install "model-due-diligence[scanners,semgrep]"
 ```
 
-Optional local dashboard API (Phase 1a — API only, no bundled frontend yet):
+Optional local dashboard (Phase 1b — API + dark UI at `/`):
 
 ```zsh
 pip install "model-due-diligence[ui]"
 mdd-ui
+open http://127.0.0.1:8765/
 ```
 
 See [`docs/mdd-ui.md`](docs/mdd-ui.md) for endpoints, security posture and interaction-state contracts.

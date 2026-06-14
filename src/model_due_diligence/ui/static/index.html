@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Local static due-diligence dashboard for AI model artefacts" />
+    <title>Model Due Diligence</title>
+    <link rel="stylesheet" href="/app.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">Skip to main content</a>
+
+    <div id="app-shell" class="app-shell">
+      <header class="header-bar" role="banner">
+        <div class="header-brand">
+          <h1 class="app-title" id="app-title">Model Due Diligence</h1>
+          <p class="app-subtitle">Static supply-chain review — no weights loaded</p>
+        </div>
+        <div class="header-status" aria-live="polite">
+          <span id="connection-badge" class="badge badge--idle" role="status">Ollama: checking…</span>
+          <span id="health-indicator" class="badge badge--idle" role="status">API: checking…</span>
+        </div>
+      </header>
+
+      <main id="main-content" class="main-layout" role="main">
+        <section class="panel target-panel" aria-labelledby="target-panel-heading">
+          <h2 id="target-panel-heading" class="panel-heading">Scan target</h2>
+
+          <div class="target-tabs" role="tablist" aria-label="Target type">
+            <button
+              type="button"
+              id="tab-ollama"
+              class="tab tab--active"
+              role="tab"
+              aria-selected="true"
+              aria-controls="panel-ollama"
+              data-tab="ollama"
+            >
+              Ollama model
+            </button>
+            <button
+              type="button"
+              id="tab-path"
+              class="tab"
+              role="tab"
+              aria-selected="false"
+              aria-controls="panel-path"
+              data-tab="path"
+            >
+              File or path
+            </button>
+          </div>
+
+          <div id="panel-ollama" class="tab-panel" role="tabpanel" aria-labelledby="tab-ollama">
+            <div id="ollama-status-banner" class="status-banner status-banner--loading" role="status">
+              Checking Ollama connectivity…
+            </div>
+            <div class="model-picker-toolbar">
+              <label for="model-picker" class="field-label">Installed models</label>
+              <button type="button" id="refresh-models" class="btn btn--ghost btn--sm">Refresh</button>
+            </div>
+            <select id="model-picker" class="model-picker" aria-describedby="model-picker-hint" disabled>
+              <option value="">Loading models…</option>
+            </select>
+            <p id="model-picker-hint" class="field-hint">Select an installed Ollama model to stage for static inspection.</p>
+          </div>
+
+          <div id="panel-path" class="tab-panel tab-panel--hidden" role="tabpanel" aria-labelledby="tab-path" hidden>
+            <label for="path-input" class="field-label">Path to file or directory</label>
+            <input
+              id="path-input"
+              class="path-input"
+              type="text"
+              placeholder="/path/to/model.gguf or repository"
+              autocomplete="off"
+              spellcheck="false"
+            />
+            <p id="path-validation-hint" class="field-hint" role="status">Enter a local GGUF, safetensors, file, or directory path.</p>
+          </div>
+
+          <details class="scan-options-drawer">
+            <summary>Scan options</summary>
+            <div class="scan-options-grid">
+              <label class="checkbox-label">
+                <input type="checkbox" id="opt-skip-external" checked />
+                Skip external scanners (faster)
+              </label>
+              <label class="checkbox-label">
+                <input type="checkbox" id="opt-skip-semgrep" />
+                Skip Semgrep
+              </label>
+              <label class="checkbox-label">
+                <input type="checkbox" id="opt-skip-bandit" />
+                Skip Bandit
+              </label>
+              <label class="field-label" for="opt-timeout">Timeout (seconds)</label>
+              <input type="number" id="opt-timeout" min="1" max="3600" value="300" />
+              <label class="field-label" for="opt-fail-on">Fail on risk level</label>
+              <select id="opt-fail-on">
+                <option value="CRITICAL">CRITICAL</option>
+                <option value="HIGH" selected>HIGH</option>
+                <option value="MEDIUM">MEDIUM</option>
+                <option value="LOW">LOW</option>
+              </select>
+            </div>
+          </details>
+
+          <section class="scan-preview-card" aria-labelledby="preview-heading">
+            <h3 id="preview-heading" class="subheading">Scan preview</h3>
+            <p id="preview-message" class="preview-message">Run preview to see which artefacts will be inspected.</p>
+            <ul id="preview-item-list" class="preview-list" aria-live="polite"></ul>
+            <ul id="preview-warnings" class="warning-list" aria-live="polite"></ul>
+          </section>
+
+          <div class="scan-action-bar">
+            <button type="button" id="preview-button" class="btn btn--secondary">Preview plan</button>
+            <button type="button" id="run-scan-button" class="btn btn--primary">Run static scan</button>
+          </div>
+        </section>
+
+        <section class="panel report-panel" aria-labelledby="report-panel-heading">
+          <h2 id="report-panel-heading" class="panel-heading">Report</h2>
+
+          <div id="scan-status-bar" class="scan-status scan-status--idle" role="status" aria-live="polite">
+            <span id="scan-status-text">No scan yet. Preview or run a scan to see evidence.</span>
+            <span class="static-scan-notice">Static scan only — no weights loaded</span>
+          </div>
+
+          <aside class="limitations-banner" role="note">
+            <strong>Limitations:</strong> A clean report does not prove a model is safe. Review every finding and read
+            <a href="https://github.com/mmccalla/model-due-diligence/blob/main/docs/limitations.md" target="_blank" rel="noopener noreferrer">limitations</a>
+            before loading artefacts.
+          </aside>
+
+          <div id="report-empty" class="empty-state">
+            <p>Run a scan to populate risk summary, findings, and exports.</p>
+          </div>
+
+          <div id="report-content" class="report-content" hidden>
+            <div class="risk-summary-row">
+              <div class="risk-gauge" aria-labelledby="risk-gauge-label">
+                <p id="risk-gauge-label" class="risk-gauge-label">Risk score</p>
+                <div class="risk-gauge-track" role="img" aria-label="Risk score gauge">
+                  <div id="risk-gauge-fill" class="risk-gauge-fill"></div>
+                </div>
+                <p id="risk-gauge-value" class="risk-gauge-value">—</p>
+                <p id="risk-level-label" class="risk-level-label">—</p>
+              </div>
+              <div class="severity-cards" id="severity-cards" aria-label="Finding counts by severity"></div>
+              <p id="scan-metadata" class="scan-metadata-chip"></p>
+            </div>
+
+            <section aria-labelledby="findings-heading">
+              <h3 id="findings-heading" class="subheading">Findings</h3>
+              <div class="findings-toolbar">
+                <label class="field-label" for="filter-severity">Severity</label>
+                <select id="filter-severity">
+                  <option value="">All</option>
+                  <option value="CRITICAL">Critical</option>
+                  <option value="HIGH">High</option>
+                  <option value="MEDIUM">Medium</option>
+                  <option value="LOW">Low</option>
+                  <option value="INFO">Info</option>
+                </select>
+                <label class="field-label" for="filter-scanner">Scanner</label>
+                <input id="filter-scanner" type="search" placeholder="Filter scanner" />
+              </div>
+              <div class="table-wrap">
+                <table id="findings-table" class="data-table">
+                  <caption class="visually-hidden">Scan findings with severity, category, and evidence</caption>
+                  <thead>
+                    <tr>
+                      <th scope="col">Severity</th>
+                      <th scope="col">Category</th>
+                      <th scope="col">File</th>
+                      <th scope="col">Message</th>
+                    </tr>
+                  </thead>
+                  <tbody id="findings-body"></tbody>
+                </table>
+              </div>
+            </section>
+
+            <section aria-labelledby="inventory-heading">
+              <h3 id="inventory-heading" class="subheading">File inventory</h3>
+              <div class="table-wrap table-wrap--short">
+                <table id="inventory-table" class="data-table">
+                  <caption class="visually-hidden">Scanned files with category and hash</caption>
+                  <thead>
+                    <tr>
+                      <th scope="col">Path</th>
+                      <th scope="col">Category</th>
+                      <th scope="col">Size</th>
+                      <th scope="col">SHA-256</th>
+                    </tr>
+                  </thead>
+                  <tbody id="inventory-body"></tbody>
+                </table>
+              </div>
+            </section>
+
+            <section aria-labelledby="metadata-heading">
+              <h3 id="metadata-heading" class="subheading">Model metadata</h3>
+              <div id="model-metadata-section" class="metadata-section">
+                <p class="empty-inline">No model metadata extracted.</p>
+              </div>
+            </section>
+
+            <div class="export-bar" id="export-bar" aria-label="Export reports">
+              <a id="export-markdown" class="btn btn--ghost btn--sm" href="#" download>Markdown</a>
+              <a id="export-json" class="btn btn--ghost btn--sm" href="#" download>JSON</a>
+              <a id="export-sarif" class="btn btn--ghost btn--sm" href="#" download>SARIF</a>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer class="footer" role="contentinfo">
+        <p class="governance-note">
+          Static evidence only. This dashboard does not load model weights or execute repository code. Govern imports with
+          your organisation's model supply-chain process.
+        </p>
+      </footer>
+    </div>
+
+    <script src="/app.js" defer></script>
+  </body>
+</html>
