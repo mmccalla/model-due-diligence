@@ -29,8 +29,8 @@ Phase **1b.0** is a short hygiene milestone between the Phase **1a** API (merged
 ### Frontend scaffold
 
 - [x] `src/model_due_diligence/ui/static/` directory reserved for Phase 1b assets
-- [ ] FastAPI static mount + `index.html` shell (Phase 1b core)
-- [ ] CORS policy for same-origin static serving (Phase 1b core)
+- [x] FastAPI static mount + `index.html` shell (Phase 1b)
+- [ ] CORS policy for cross-origin dev tooling (optional)
 
 ### Tests & quality
 

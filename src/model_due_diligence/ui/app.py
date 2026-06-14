@@ -12,6 +12,7 @@ from typing import Any, cast
 
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
 
 from model_due_diligence import __version__
 from model_due_diligence.ui.health import health_status, scanner_engine_status
@@ -33,6 +34,7 @@ from model_due_diligence.ui.schemas import (
 )
 
 API_V1_PREFIX = "/api/v1"
+STATIC_DIR = Path(__file__).resolve().parent / "static"
 
 RunScanService = Callable[[ScanTargetRequest, Path, str], ScanResponse]
 PreviewScanService = Callable[[ScanTargetRequest], ScanPreviewResponse]
@@ -53,6 +55,8 @@ def create_app(
     *,
     discovery_settings: OllamaDiscoverySettings | None = None,
     output_manager: ScanOutputManager | None = None,
+    static_dir: Path | None = None,
+    mount_static: bool = True,
     get_status: GetOllamaStatus | None = None,
     list_models: ListOllamaModels | None = None,
     preview: PreviewScanService | None = None,
@@ -148,5 +152,9 @@ def create_app(
             status_code=exc.status_code,
             content=ErrorResponse(error="request_failed", detail=str(exc.detail)).model_dump(),
         )
+
+    assets_dir = static_dir or STATIC_DIR
+    if mount_static and assets_dir.is_dir():
+        app.mount("/", StaticFiles(directory=assets_dir, html=True), name="ui-static")
 
     return app

@@ -225,3 +225,27 @@ def test_openapi_lists_versioned_routes(client: TestClient) -> None:
     paths = response.json()["paths"]
     assert f"{API_V1_PREFIX}/health" in paths
     assert f"{API_V1_PREFIX}/scan/{{scan_id}}/export/{{report_format}}" in paths
+
+
+def test_dashboard_index_served(output_manager: ScanOutputManager) -> None:
+    app = create_app(output_manager=output_manager)
+    client = TestClient(app)
+    response = client.get("/")
+
+    assert response.status_code == 200
+    assert "text/html" in response.headers.get("content-type", "")
+    assert "Model Due Diligence" in response.text
+
+
+def test_dashboard_static_assets_served(output_manager: ScanOutputManager) -> None:
+    app = create_app(output_manager=output_manager)
+    client = TestClient(app)
+
+    css = client.get("/app.css")
+    js = client.get("/app.js")
+
+    assert css.status_code == 200
+    assert js.status_code == 200
+    assert "application/javascript" in js.headers.get("content-type", "") or "text/javascript" in js.headers.get(
+        "content-type", ""
+    )

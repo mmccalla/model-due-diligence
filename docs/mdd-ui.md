@@ -1,6 +1,6 @@
 # mdd-ui local dashboard API
 
-`mdd-ui` is an optional local web API for the Model Due Diligence dashboard. It wraps the existing static scan engine and exposes versioned JSON endpoints for Phase 1b frontend work.
+`mdd-ui` is an optional local web dashboard for Model Due Diligence. It serves a dark UI at `/` and a versioned JSON API at `/api/v1/`, wrapping the existing static scan engine.
 
 ## Install
 
@@ -24,6 +24,7 @@ Defaults:
 
 - bind address: `127.0.0.1`
 - port: `8765`
+- dashboard: `http://127.0.0.1:8765/`
 - OpenAPI docs: `http://127.0.0.1:8765/docs`
 
 Override bind address only for trusted local networks. The API is designed for local operator use, not public exposure.

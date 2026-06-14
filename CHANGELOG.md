@@ -24,6 +24,11 @@ Pre-frontend cleanup milestone — see [`docs/mdd-ui-phase-1b-0.md`](docs/mdd-ui
 - Static asset directory scaffold at `src/model_due_diligence/ui/static/`
 - Phase handoff checklist and branch map for 1b core implementers
 
+### Added (Phase 1b — `feat/mdd-ui-phase-1b`)
+
+- Dark dashboard UI at `/` (`index.html`, `app.css`, `app.js`) implementing the wireframe component tree
+- FastAPI `StaticFiles` mount for local single-origin serving
+
 ## [0.1.0] - 2026-06-14
 
 ### Added
