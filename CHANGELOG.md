@@ -29,6 +29,14 @@ Pre-frontend cleanup milestone — see [`docs/mdd-ui-phase-1b-0.md`](docs/mdd-ui
 - Dark dashboard UI at `/` (`index.html`, `app.css`, `app.js`) implementing the wireframe component tree
 - FastAPI `StaticFiles` mount for local single-origin serving
 
+### Added (Phase 1c — `feat/mdd-ui-phase-1c`)
+
+- Preview metadata (resolved path + artefact count), expandable finding evidence (`<details>`), export disabled state until scan completes, stale-report banner, scan elapsed timer, keyboard shortcuts
+
+### Fixed
+
+- `resolve_installed_model` honours `OLLAMA_MODELS` environment variable (CI fix)
+
 ## [0.1.0] - 2026-06-14
 
 ### Added

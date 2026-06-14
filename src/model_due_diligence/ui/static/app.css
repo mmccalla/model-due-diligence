@@ -244,6 +244,7 @@ body {
 
 .field-hint,
 .preview-message,
+.preview-meta,
 .empty-state p,
 .empty-inline {
   color: var(--text-muted);
@@ -584,8 +585,44 @@ a:focus-visible,
   color: var(--info);
 }
 
-.evidence-panel {
+.preview-meta {
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  margin: 0 0 0.5rem;
+  color: var(--accent);
+}
+
+.report-stale {
+  padding: 0.65rem 0.85rem;
+  margin-bottom: 1rem;
+  border-radius: var(--radius);
+  background: rgba(79, 156, 249, 0.1);
+  border: 1px solid rgba(79, 156, 249, 0.3);
+  font-size: 0.85rem;
+}
+
+.btn--disabled,
+.btn--disabled:hover {
+  opacity: 0.45;
+  pointer-events: none;
+  cursor: not-allowed;
+}
+
+.finding-details {
   margin-top: 0.35rem;
+}
+
+.finding-details summary {
+  cursor: pointer;
+  color: var(--accent);
+  font-size: 0.75rem;
+}
+
+.finding-details[open] summary {
+  margin-bottom: 0.35rem;
+}
+
+.evidence-panel {
   padding: 0.5rem;
   background: var(--bg-elevated);
   border-radius: 6px;

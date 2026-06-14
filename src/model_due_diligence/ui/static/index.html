@@ -107,6 +107,7 @@
 
           <section class="scan-preview-card" aria-labelledby="preview-heading">
             <h3 id="preview-heading" class="subheading">Scan preview</h3>
+            <p id="preview-meta" class="preview-meta" hidden></p>
             <p id="preview-message" class="preview-message">Run preview to see which artefacts will be inspected.</p>
             <ul id="preview-item-list" class="preview-list" aria-live="polite"></ul>
             <ul id="preview-warnings" class="warning-list" aria-live="polite"></ul>
@@ -131,6 +132,10 @@
             <a href="https://github.com/mmccalla/model-due-diligence/blob/main/docs/limitations.md" target="_blank" rel="noopener noreferrer">limitations</a>
             before loading artefacts.
           </aside>
+
+          <div id="report-stale" class="report-stale" role="status" hidden>
+            Target changed since last scan. Re-run scan to refresh evidence.
+          </div>
 
           <div id="report-empty" class="empty-state">
             <p>Run a scan to populate risk summary, findings, and exports.</p>
@@ -207,9 +212,9 @@
             </section>
 
             <div class="export-bar" id="export-bar" aria-label="Export reports">
-              <a id="export-markdown" class="btn btn--ghost btn--sm" href="#" download>Markdown</a>
-              <a id="export-json" class="btn btn--ghost btn--sm" href="#" download>JSON</a>
-              <a id="export-sarif" class="btn btn--ghost btn--sm" href="#" download>SARIF</a>
+              <a id="export-markdown" class="btn btn--ghost btn--sm btn--disabled" href="#" aria-disabled="true" tabindex="-1">Markdown</a>
+              <a id="export-json" class="btn btn--ghost btn--sm btn--disabled" href="#" aria-disabled="true" tabindex="-1">JSON</a>
+              <a id="export-sarif" class="btn btn--ghost btn--sm btn--disabled" href="#" aria-disabled="true" tabindex="-1">SARIF</a>
             </div>
           </div>
         </section>

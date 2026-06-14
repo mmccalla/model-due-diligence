@@ -16,6 +16,7 @@
     pathInput: document.getElementById("path-input"),
     pathHint: document.getElementById("path-validation-hint"),
     previewMessage: document.getElementById("preview-message"),
+    previewMeta: document.getElementById("preview-meta"),
     previewList: document.getElementById("preview-item-list"),
     previewWarnings: document.getElementById("preview-warnings"),
     previewButton: document.getElementById("preview-button"),
@@ -23,6 +24,7 @@
     scanStatusBar: document.getElementById("scan-status-bar"),
     scanStatusText: document.getElementById("scan-status-text"),
     reportEmpty: document.getElementById("report-empty"),
+    reportStale: document.getElementById("report-stale"),
     reportContent: document.getElementById("report-content"),
     riskGaugeFill: document.getElementById("risk-gauge-fill"),
     riskGaugeValue: document.getElementById("risk-gauge-value"),
@@ -54,6 +56,8 @@
     scanId: null,
     lastReport: null,
     lastFindings: [],
+    lastScanTarget: null,
+    scanStartedAt: null,
   };
 
   function setBadge(el, text, interactionState) {
@@ -184,7 +188,36 @@
     }
   }
 
+  function targetFingerprint() {
+    try {
+      return JSON.stringify(currentTarget());
+    } catch (_err) {
+      return null;
+    }
+  }
+
+  function markReportStaleIfNeeded() {
+    if (!state.lastScanTarget || !ui.reportStale) return;
+    const current = targetFingerprint();
+    const stale = current !== null && current !== state.lastScanTarget;
+    ui.reportStale.hidden = !stale;
+  }
+
   function renderPreview(data) {
+    const itemCount = (data.items || []).length;
+    if (ui.previewMeta) {
+      if (data.resolved_path || itemCount) {
+        ui.previewMeta.hidden = false;
+        ui.previewMeta.textContent =
+          (data.resolved_path ? "Resolved: " + data.resolved_path + " · " : "") +
+          itemCount +
+          " artefact" +
+          (itemCount === 1 ? "" : "s") +
+          " listed";
+      } else {
+        ui.previewMeta.hidden = true;
+      }
+    }
     ui.previewMessage.textContent = data.message || "Preview ready.";
     ui.previewList.innerHTML = "";
     (data.items || []).forEach(function (item) {
@@ -236,16 +269,21 @@
       ui.findingsBody.appendChild(row);
       return;
     }
-    filtered.forEach(function (finding) {
+    filtered.forEach(function (finding, index) {
       const row = document.createElement("tr");
       const sev = (finding.severity || "INFO").toUpperCase();
-      const evidence =
-        finding.evidence || finding.recommendation
-          ? '<div class="evidence-panel">' +
-            (finding.evidence ? "Evidence: " + escapeHtml(finding.evidence) + "\n" : "") +
-            (finding.recommendation ? "Recommendation: " + escapeHtml(finding.recommendation) : "") +
-            "</div>"
-          : "";
+      let evidenceHtml = "";
+      if (finding.evidence || finding.recommendation) {
+        const body =
+          (finding.evidence ? "Evidence:\n" + escapeHtml(finding.evidence) + "\n" : "") +
+          (finding.recommendation ? "Recommendation:\n" + escapeHtml(finding.recommendation) : "");
+        evidenceHtml =
+          '<details class="finding-details"><summary>View evidence (' +
+          (index + 1) +
+          ')</summary><div class="evidence-panel">' +
+          body +
+          "</div></details>";
+      }
       row.innerHTML =
         '<td><span class="sev-pill sev-pill--' +
         sev +
@@ -260,7 +298,7 @@
         "</td>" +
         "<td>" +
         escapeHtml(finding.message || "") +
-        evidence +
+        evidenceHtml +
         "</td>";
       ui.findingsBody.appendChild(row);
     });
@@ -316,9 +354,27 @@
 
   function setExportLinks(scanId) {
     const base = API + "/scan/" + scanId + "/export/";
-    ui.exportMarkdown.href = base + "markdown";
-    ui.exportJson.href = base + "json";
-    ui.exportSarif.href = base + "sarif";
+    const links = [ui.exportMarkdown, ui.exportJson, ui.exportSarif];
+    const formats = ["markdown", "json", "sarif"];
+    links.forEach(function (link, idx) {
+      if (!link) return;
+      link.href = base + formats[idx];
+      link.setAttribute("download", "");
+      link.classList.remove("btn--disabled");
+      link.setAttribute("aria-disabled", "false");
+      link.tabIndex = 0;
+    });
+  }
+
+  function disableExportLinks() {
+    [ui.exportMarkdown, ui.exportJson, ui.exportSarif].forEach(function (link) {
+      if (!link) return;
+      link.href = "#";
+      link.removeAttribute("download");
+      link.classList.add("btn--disabled");
+      link.setAttribute("aria-disabled", "true");
+      link.tabIndex = -1;
+    });
   }
 
   function renderReport(scanResponse) {
@@ -330,6 +386,9 @@
 
     ui.reportEmpty.hidden = true;
     ui.reportContent.hidden = false;
+    if (ui.reportStale) ui.reportStale.hidden = true;
+
+    state.lastScanTarget = targetFingerprint();
 
     const score = report.risk_score != null ? report.risk_score : 0;
     ui.riskGaugeFill.style.width = Math.min(100, Math.max(0, score)) + "%";
@@ -389,7 +448,13 @@
     state.scanRunning = true;
     ui.runScanButton.disabled = true;
     ui.previewButton.disabled = true;
+    state.scanStartedAt = Date.now();
     setScanStatus("Running static scan…", "running");
+    const timer = window.setInterval(function () {
+      if (!state.scanRunning || !state.scanStartedAt) return;
+      const seconds = Math.floor((Date.now() - state.scanStartedAt) / 1000);
+      setScanStatus("Running static scan… (" + seconds + "s)", "running");
+    }, 1000);
     try {
       const target = currentTarget();
       const data = await apiFetch("/scan", {
@@ -401,7 +466,9 @@
     } catch (err) {
       setScanStatus("Scan failed: " + (err.message || err), "error");
     } finally {
+      window.clearInterval(timer);
       state.scanRunning = false;
+      state.scanStartedAt = null;
       ui.runScanButton.disabled = false;
       ui.previewButton.disabled = false;
     }
@@ -423,13 +490,16 @@
   function bindEvents() {
     ui.tabOllama.addEventListener("click", function () {
       switchTab("ollama");
+      markReportStaleIfNeeded();
     });
     ui.tabPath.addEventListener("click", function () {
       switchTab("path");
+      markReportStaleIfNeeded();
     });
     ui.refreshModels.addEventListener("click", loadModels);
     ui.previewButton.addEventListener("click", runPreview);
     ui.runScanButton.addEventListener("click", runScan);
+    ui.modelPicker.addEventListener("change", markReportStaleIfNeeded);
     ui.filterSeverity.addEventListener("change", function () {
       renderFindings(state.lastFindings);
     });
@@ -438,11 +508,23 @@
     });
     ui.pathInput.addEventListener("input", function () {
       ui.pathHint.textContent = "Enter a local GGUF, safetensors, file, or directory path.";
+      markReportStaleIfNeeded();
+    });
+    document.addEventListener("keydown", function (event) {
+      if (event.target === ui.pathInput && event.key === "Enter" && !event.shiftKey) {
+        event.preventDefault();
+        runPreview();
+      }
+      if ((event.metaKey || event.ctrlKey) && event.key === "Enter") {
+        event.preventDefault();
+        runScan();
+      }
     });
   }
 
   async function init() {
     bindEvents();
+    disableExportLinks();
     await Promise.all([loadHealth(), loadOllamaStatus(), loadModels()]);
   }
 

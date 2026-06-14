@@ -9,7 +9,7 @@ Phase 1a delivers the API and interaction-state contracts below. Phase **1b.0** 
 | 1a | `feat/mdd-ui-phase-1a` | `/api/v1/` backend, tests, operator docs |
 | 1b.0 | `feat/mdd-ui-phase-1b-0` | Handoff checklist, static scaffold, contract freeze |
 | 1b | `feat/mdd-ui-phase-1b` | Dashboard UI chrome (this component tree) |
-| 1c | TBD | Preview polish, a11y, export UX, usability tests |
+| 1c | `feat/mdd-ui-phase-1c` | Preview polish, a11y, export UX, stale-report UX |
 
 ```text
 AppShell
