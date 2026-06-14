@@ -102,3 +102,24 @@ def test_get_ollama_status_reports_filesystem_fallback(tmp_path: Path) -> None:
     assert status.state == InteractionState.PARTIAL_SUCCESS
     assert status.connected is False
     assert status.source == OllamaDiscoverySource.FILESYSTEM
+
+
+def test_get_ollama_status_reports_error_when_unavailable(tmp_path: Path) -> None:
+    client = FakeClient(response=None, error=ConnectionError("offline"))
+    settings = OllamaDiscoverySettings(host="http://127.0.0.1:11434", models_dir=tmp_path / "missing")
+
+    status = get_ollama_status(settings, client=client)
+
+    assert status.state == InteractionState.ERROR
+    assert status.source == OllamaDiscoverySource.NONE
+
+
+def test_list_ollama_models_reports_empty_when_api_has_no_models() -> None:
+    client = FakeClient(response=FakeResponse(status_code=200, payload={"models": []}))
+    settings = OllamaDiscoverySettings(host="http://127.0.0.1:11434", models_dir=Path("/tmp/unused"))
+
+    response = list_ollama_models(settings, client=client)
+
+    assert response.state == InteractionState.EMPTY
+    assert response.source == OllamaDiscoverySource.API
+    assert response.models == []

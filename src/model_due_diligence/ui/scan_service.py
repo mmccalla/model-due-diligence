@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import dataclasses
+import logging
 import tempfile
 from collections.abc import Callable
 from dataclasses import asdict, is_dataclass, replace
@@ -11,11 +12,12 @@ from pathlib import Path
 from typing import Any, cast
 
 from model_due_diligence.app import ModelDueDiligenceApp
-from model_due_diligence.domain.models import AuditReport, ReportFormat, ScanContext
+from model_due_diligence.domain.models import AuditReport, AuditSummary, ReportFormat, ScanContext
 from model_due_diligence.ollama import resolve_installed_model, stage_model_for_scan
 from model_due_diligence.reporting.json_report import write_json_report_to_directory
 from model_due_diligence.reporting.markdown_report import write_markdown_report_to_directory
 from model_due_diligence.reporting.sarif_report import write_sarif_report_to_directory
+from model_due_diligence.ui.scan_state import derive_scan_interaction_state
 from model_due_diligence.ui.schemas import (
     InteractionState,
     ScanPreviewItem,
@@ -25,6 +27,8 @@ from model_due_diligence.ui.schemas import (
     ScanTargetRequest,
     ScanTargetType,
 )
+
+logger = logging.getLogger(__name__)
 
 RunScanFn = Callable[[ScanContext], AuditReport]
 
@@ -95,12 +99,20 @@ def preview_scan(request: ScanTargetRequest) -> ScanPreviewResponse:
 def run_scan(
     request: ScanTargetRequest,
     output_dir: Path,
+    scan_id: str,
     *,
     app: ModelDueDiligenceApp | None = None,
     runner: RunScanFn | None = None,
 ) -> ScanResponse:
     """Run a static scan and return a serialised report payload."""
 
+    target_label = request.target.strip()
+    logger.info(
+        "Starting UI scan scan_id=%s target_type=%s target=%s",
+        scan_id,
+        request.target_type.value,
+        target_label,
+    )
     prepared = prepare_scan(request, output_dir)
     try:
         report = (runner or (app or ModelDueDiligenceApp()).run)(prepared.context)
@@ -116,20 +128,33 @@ def run_scan(
     if request.options.skip_external:
         warnings.append("External scanners were skipped for this run.")
 
+    state = derive_scan_interaction_state(report, warnings)
+    message = _scan_completion_message(state)
+
+    findings_count = _summary_findings_count(report.summary)
+    logger.info(
+        "Completed UI scan scan_id=%s state=%s risk_level=%s findings=%s",
+        scan_id,
+        state.value,
+        report.risk_level.value,
+        findings_count,
+    )
+
     return ScanResponse(
-        state=InteractionState.SUCCESS,
+        state=state,
         target_type=request.target_type,
-        target=request.target.strip(),
+        target=target_label,
         scanned_path=report.scanned_path,
         report=serialise_audit_report(report),
         report_paths=ScanReportPaths(
+            scan_id=scan_id,
             markdown_path=str(markdown_path),
             json_path=str(json_path),
             sarif_path=str(sarif_path),
             output_dir=str(output_dir),
         ),
         warnings=warnings,
-        message="Static scan completed. Review findings before loading the model.",
+        message=message,
     )
 
 
@@ -164,12 +189,7 @@ def _preview_ollama_target(model_name: str) -> ScanPreviewResponse:
 def _preview_path_target(raw_target: str) -> ScanPreviewResponse:
     target = Path(raw_target).expanduser().resolve()
     if not target.exists():
-        return ScanPreviewResponse(
-            state=InteractionState.ERROR,
-            target_type=ScanTargetType.PATH,
-            target=raw_target,
-            message=f"Target does not exist: {target}",
-        )
+        raise FileNotFoundError(f"Target does not exist: {target}")
 
     if target.is_file():
         items = [_preview_item_for_file(target)]
@@ -260,3 +280,17 @@ def _serialise_nested(value: object) -> object:
     if isinstance(value, Path):
         return str(value)
     return value
+
+
+def _summary_findings_count(summary: AuditSummary | dict[str, Any]) -> int:
+    if isinstance(summary, AuditSummary):
+        return summary.findings
+    return int(summary.get("findings", 0))
+
+
+def _scan_completion_message(state: InteractionState) -> str:
+    if state == InteractionState.PARTIAL_SUCCESS:
+        return "Static scan completed with scanner warnings. Review findings and tool status before loading the model."
+    if state == InteractionState.WARNING:
+        return "Static scan completed with configuration warnings. Review findings before loading the model."
+    return "Static scan completed. Review findings before loading the model."

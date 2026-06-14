@@ -78,8 +78,9 @@ AppShell
 
 | Component data need | Endpoint |
 |---------------------|----------|
-| `HealthIndicator` | `GET /api/health` |
-| `ConnectionBadge`, `OllamaStatusBanner` | `GET /api/ollama/status` |
-| `ModelPicker` | `GET /api/ollama/models` |
-| `ScanPreviewCard` | `POST /api/scan/preview` |
-| `ReportPanel` | `POST /api/scan` |
+| `HealthIndicator` | `GET /api/v1/health` |
+| `ConnectionBadge`, `OllamaStatusBanner` | `GET /api/v1/ollama/status` |
+| `ModelPicker` | `GET /api/v1/ollama/models` |
+| `ScanPreviewCard` | `POST /api/v1/scan/preview` |
+| `ReportPanel` | `POST /api/v1/scan` |
+| `ExportBar` | `GET /api/v1/scan/{scan_id}/export/{format}` |
