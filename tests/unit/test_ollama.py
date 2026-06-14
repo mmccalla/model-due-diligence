@@ -6,6 +6,7 @@ import json
 import struct
 from pathlib import Path
 
+import pytest
 from tests.helpers_ollama import build_fake_ollama_store
 
 from model_due_diligence.ollama import (
@@ -60,6 +61,18 @@ def test_resolve_installed_model_reads_manifest_and_layers(tmp_path: Path) -> No
     assert resolved.manifest_path.name == "4b"
     assert resolved.layers[0].media_type == MODEL_MEDIA_TYPE
     assert resolved.layers[0].blob_path.exists()
+
+
+def test_resolve_installed_model_honours_ollama_models_env(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    models_dir = build_fake_ollama_store(tmp_path, "qwen3:4b")
+    monkeypatch.setenv("OLLAMA_MODELS", str(models_dir))
+
+    resolved = resolve_installed_model("qwen3:4b")
+
+    assert resolved.models_dir == models_dir.resolve()
 
 
 def test_blob_path_for_digest_returns_expected_path(tmp_path: Path) -> None:

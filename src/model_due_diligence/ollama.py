@@ -9,6 +9,7 @@ normal scanner flow.
 from __future__ import annotations
 
 import json
+import os
 import shutil
 import tempfile
 from dataclasses import dataclass
@@ -18,6 +19,7 @@ from typing import Any
 DEFAULT_OLLAMA_MODELS_DIR = Path.home() / ".ollama" / "models"
 DEFAULT_OLLAMA_REGISTRY = "registry.ollama.ai"
 DEFAULT_OLLAMA_NAMESPACE = "library"
+OLLAMA_MODELS_ENV = "OLLAMA_MODELS"
 GGUF_MAGIC = b"GGUF"
 MAX_SAFETENSORS_HEADER_BYTES = 1024 * 1024
 SMALL_BLOB_COPY_BYTES = 16 * 1024 * 1024
@@ -55,10 +57,16 @@ class OllamaModel:
     layers: tuple[OllamaLayer, ...]
 
 
+def default_ollama_models_dir() -> Path:
+    """Return the configured Ollama models directory."""
+
+    return Path(os.environ.get(OLLAMA_MODELS_ENV, str(DEFAULT_OLLAMA_MODELS_DIR))).expanduser()
+
+
 def resolve_installed_model(model_name: str, models_dir: Path | None = None) -> OllamaModel:
     """Resolve an installed Ollama model reference to local manifest/blob paths."""
 
-    resolved_models_dir = (models_dir or DEFAULT_OLLAMA_MODELS_DIR).expanduser().resolve()
+    resolved_models_dir = (models_dir or default_ollama_models_dir()).expanduser().resolve()
     manifest_path = resolved_models_dir / "manifests" / Path(*manifest_relative_parts(model_name))
     if not manifest_path.is_file():
         raise FileNotFoundError(
