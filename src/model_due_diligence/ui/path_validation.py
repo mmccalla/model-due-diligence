@@ -32,6 +32,7 @@ def resolve_scan_target(raw_target: str) -> Path:
     if ".." in Path(cleaned).parts:
         raise ValueError("Path traversal is not allowed.")
 
+    # codeql[py/path-injection]: localhost operator scan roots are allowlisted below.
     target = Path(cleaned).expanduser().resolve()
     if not _is_allowed_scan_root(target):
         raise ValueError("Scan target must be under the user home, temp, or current working directory.")
