@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import re
+import tempfile
 from pathlib import Path
 
 MAX_PATH_TARGET_LENGTH = 4096
@@ -32,6 +33,21 @@ def resolve_scan_target(raw_target: str) -> Path:
         raise ValueError("Path traversal is not allowed.")
 
     target = Path(cleaned).expanduser().resolve()
+    if not _is_allowed_scan_root(target):
+        raise ValueError("Scan target must be under the user home, temp, or current working directory.")
     if not target.exists():
         raise FileNotFoundError(f"Target does not exist: {target}")
     return target
+
+
+def _allowed_roots() -> tuple[Path, ...]:
+    return (
+        Path.home().resolve(),
+        Path.cwd().resolve(),
+        Path(tempfile.gettempdir()).resolve(),
+    )
+
+
+def _is_allowed_scan_root(path: Path) -> bool:
+    resolved = path.resolve()
+    return any(resolved == root or root in resolved.parents for root in _allowed_roots())
