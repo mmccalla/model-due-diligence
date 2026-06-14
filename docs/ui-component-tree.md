@@ -1,15 +1,15 @@
 # mdd-ui — Wireframe component tree (Phase 1b target)
 
-Phase 1a delivers the API and interaction-state contracts below. Phase **1b.0** completes pre-frontend cleanup ([`mdd-ui-phase-1b-0.md`](mdd-ui-phase-1b-0.md)). Phase **1b core** implements this tree.
+Phases **1a–1c** are **complete on `main`**. Phase 1a delivers the API and interaction-state contracts below. Phase **1b.0** completed pre-frontend cleanup ([`mdd-ui-phase-1b-0.md`](mdd-ui-phase-1b-0.md)). Phases **1b** and **1c** implemented and polished this tree.
 
 ## Phase timeline
 
-| Phase | Branch | Deliverable |
-|-------|--------|-------------|
-| 1a | `feat/mdd-ui-phase-1a` | `/api/v1/` backend, tests, operator docs |
-| 1b.0 | `feat/mdd-ui-phase-1b-0` | Handoff checklist, static scaffold, contract freeze |
-| 1b | `feat/mdd-ui-phase-1b` | Dashboard UI chrome (this component tree) |
-| 1c | `feat/mdd-ui-phase-1c` | Preview polish, a11y, export UX, stale-report UX |
+| Phase | Branch | Deliverable | Status |
+|-------|--------|-------------|--------|
+| 1a | `feat/mdd-ui-phase-1a` | `/api/v1/` backend, tests, operator docs | Complete on `main` |
+| 1b.0 | `feat/mdd-ui-phase-1b-0` | Handoff checklist, static scaffold, contract freeze | Complete on `main` |
+| 1b | `feat/mdd-ui-phase-1b` | Dashboard UI chrome (this component tree) | Complete on `main` |
+| 1c | `feat/mdd-ui-phase-1c` | Preview polish, a11y, export UX, stale-report UX | Complete on `main` |
 
 ```text
 AppShell
