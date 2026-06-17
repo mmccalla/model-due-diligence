@@ -37,6 +37,18 @@ Or after cloning, run the demo directly:
 
 **Canonical command:** `mdd` (also available as `model-due-diligence` and `python -m model_due_diligence`).
 
+## Current status
+
+`model-due-diligence` v0.2.0 is a static local due-diligence tool with three entry points:
+
+| Entry point | Purpose | Install profile |
+|---|---|---|
+| `mdd` | Scan a local file or directory and write Markdown, JSON and SARIF reports | `model-due-diligence` |
+| `mdd-ollama` | Stage and scan an installed Ollama model from the local model store | `model-due-diligence` |
+| `mdd-ui` | Serve the local dashboard and `/api/v1/` API from one FastAPI process | `model-due-diligence[ui]` |
+
+The dashboard is not a separate frontend/backend stack. `mdd-ui` is a single local Python process: it serves the static UI at `/`, exposes the API under `/api/v1/`, and calls the same in-process static scan engine as the CLI. Ollama is an optional external model source, not this project's backend.
+
 `model-due-diligence` is a Python command-line tool for performing **static supply-chain due diligence** on local AI model files and cloned model repositories before they are imported into runtimes such as Ollama, llama.cpp, LM Studio or Transformers.
 
 It is designed to help answer one practical question:
@@ -292,20 +304,25 @@ The score is intentionally conservative. It is a decision aid, not an automated 
 pip install model-due-diligence
 ```
 
-If PyPI is not yet populated, install the latest GitHub release wheel instead (see [`docs/publishing.md`](docs/publishing.md)).
-
 For optional external scanner integrations:
 
 ```zsh
 pip install "model-due-diligence[scanners,semgrep]"
 ```
 
-Optional local dashboard (Phase 1b — API + dark UI at `/`):
+For the local dashboard:
 
 ```zsh
 pip install "model-due-diligence[ui]"
 mdd-ui
 open http://127.0.0.1:8765/
+```
+
+For the dashboard plus external scanner tools in one environment:
+
+```zsh
+pip install "model-due-diligence[ui,scanners,semgrep]"
+mdd-ui
 ```
 
 See [`docs/mdd-ui.md`](docs/mdd-ui.md) for endpoints, security posture and interaction-state contracts.
@@ -339,6 +356,22 @@ mdd-ollama --help
 mdd-ui --help
 model-due-diligence --help
 python -m model_due_diligence --help
+python -c "import model_due_diligence; print(model_due_diligence.__version__)"
+```
+
+If `mdd-ui` reports `scanner_unavailable`, the dashboard was started from an environment that cannot see the external scanner executables. Start it from the same virtual environment where `modelscan`, `semgrep`, `bandit`, `detect-secrets` and `pip-audit` are installed:
+
+```zsh
+source .venv/bin/activate
+which mdd-ui
+which modelscan semgrep bandit detect-secrets pip-audit
+mdd-ui
+```
+
+If the version prints as `0.1.0`, `None`, or anything other than the release in `pyproject.toml`, refresh the editable install:
+
+```zsh
+python -m pip install --ignore-installed -e ".[dev,scanners,semgrep]"
 ```
 
 ---
@@ -392,6 +425,13 @@ Launch the local dashboard (requires the `[ui]` extra):
 pip install "model-due-diligence[ui]"
 mdd-ui
 open http://127.0.0.1:8765/
+```
+
+To run the dashboard with external scanners available:
+
+```zsh
+pip install "model-due-diligence[ui,scanners,semgrep]"
+mdd-ui
 ```
 
 ---
@@ -582,6 +622,8 @@ Set up the environment:
 ./scripts/dev-setup.sh
 source .venv/bin/activate
 ```
+
+The setup script installs development and scanner dependencies by default. Use `./scripts/dev-setup.sh --no-scanners` only when you deliberately want a lighter environment; scans from that environment will report unavailable external scanners unless `--skip-external` is used.
 
 Run quality gates:
 

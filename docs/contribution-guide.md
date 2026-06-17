@@ -67,7 +67,7 @@ python -m pip install --upgrade pip
 Install the package with development and scanner dependencies:
 
 ```zsh
-python -m pip install -e ".[dev,scanners]"
+python -m pip install -e ".[dev,scanners,semgrep]"
 ```
 
 Verify the CLI is available:
@@ -76,6 +76,8 @@ Verify the CLI is available:
 mdd --help
 model-due-diligence --help
 ```
+
+When testing `mdd-ui`, start it from this activated environment. External scanners are discovered from the `PATH` of the running process, so a global or `pyenv` `mdd-ui` command may not see tools installed in `.venv`.
 
 ## Required Quality Gates
 
@@ -193,6 +195,7 @@ Add dependencies to the correct section in `pyproject.toml`:
 
 - runtime dependencies under `[project].dependencies`;
 - optional scanner integrations under `[project.optional-dependencies].scanners`;
+- Semgrep-specific integration under `[project.optional-dependencies].semgrep`;
 - development tools under `[project.optional-dependencies].dev`.
 
 ## Security and Supply-Chain Rules

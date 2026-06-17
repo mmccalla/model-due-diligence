@@ -10,7 +10,7 @@ This document describes how to publish `model-due-diligence` to GitHub and PyPI.
    ./scripts/run-quality.sh
    ```
 
-2. `[project].version` in `pyproject.toml` matches the release tag (for example `0.1.0` for tag `v0.1.0`).
+2. `[project].version` in `pyproject.toml` matches the release tag (for example `0.2.0` for tag `v0.2.0`).
 
 3. GitHub repository admin access for environments and releases.
 
@@ -62,10 +62,12 @@ The release workflow (`.github/workflows/release.yml`) runs quality gates, valid
 git checkout main
 git pull origin main
 ./scripts/run-quality.sh
-git tag -a v0.1.0 -m "Release v0.1.0"
+git tag -a vX.Y.Z -m "Release vX.Y.Z"
 git push origin main
-git push origin v0.1.0
+git push origin vX.Y.Z
 ```
+
+Replace `vX.Y.Z` with the exact version tag that matches `pyproject.toml`.
 
 Monitor:
 
@@ -87,15 +89,27 @@ mdd-ollama --help
 deactivate
 ```
 
-## Install from GitHub release (until PyPI publish is configured)
-
-If PyPI Trusted Publishing is not yet configured, install the v0.1.0 wheel directly from the GitHub release:
+Verify the optional dashboard and scanner extras separately:
 
 ```zsh
-pip install https://github.com/mmccalla/model-due-diligence/releases/download/v0.1.0/model_due_diligence-0.1.0-py3-none-any.whl
+python -m venv /tmp/mdd-ui-verify
+source /tmp/mdd-ui-verify/bin/activate
+python -m pip install --upgrade pip
+python -m pip install "model-due-diligence[ui,scanners,semgrep]"
+mdd-ui --help
+modelscan --help
+deactivate
 ```
 
-Then re-run or wait for the PyPI publish job after completing [`docs/publishing.md`](docs/publishing.md).
+## Install from GitHub release (fallback)
+
+If PyPI Trusted Publishing is not yet configured, install the wheel directly from the matching GitHub release:
+
+```zsh
+pip install https://github.com/mmccalla/model-due-diligence/releases/download/vX.Y.Z/model_due_diligence-X.Y.Z-py3-none-any.whl
+```
+
+Then re-run or wait for the PyPI publish job after completing Trusted Publishing setup.
 
 ## Troubleshooting
 

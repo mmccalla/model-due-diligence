@@ -109,10 +109,6 @@ pip-wheel-metadata/
 .pip-tools/
 .tox/
 .nox/
-.DS_Store
-.DS_Store
-.DS_Store
-.DS_Store
 /skills
 /skills_docs
 AGENTIC_CODING_GLOBAL_SAFETY.md
@@ -122,5 +118,5 @@ SECURE_AGENTIC_DEVELOPMENT.md
 CONTRIBUTING.md
 .coverage 2
 .DS_Store
-.DS_Store
-.DS_Store
+*.DS_Store
+*/.DS_Store
