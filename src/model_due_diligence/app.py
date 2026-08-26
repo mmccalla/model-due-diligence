@@ -39,6 +39,7 @@ class ModelDueDiligenceApp:
 
     def __init__(
         self,
+        *,
         inventory: FileInventoryBuilder | None = None,
         text_scanner: SuspiciousTextScanner | None = None,
         ast_scanner: PythonAstScanner | None = None,

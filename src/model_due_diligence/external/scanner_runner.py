@@ -26,6 +26,7 @@ class ExternalScannerRunner:
 
     def __init__(
         self,
+        *,
         modelscan: ModelScanAdapter | None = None,
         semgrep: SemgrepAdapter | None = None,
         bandit: BanditAdapter | None = None,

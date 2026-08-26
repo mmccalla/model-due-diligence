@@ -31,6 +31,7 @@ def test_external_adapters_normalise_unavailable_tool(
     tool_name: str,
     findings_exit_code: int,
     expected_severity: Severity,
+    *,
     monkeypatch: pytest.MonkeyPatch,
     tmp_path: Path,
 ) -> None:
