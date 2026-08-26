@@ -719,7 +719,8 @@ model-due-diligence/
 │   ├── audit-huggingface-clone.sh
 │   ├── audit-local-gguf.sh
 │   ├── demo.sh
-│   └── sample-report.md
+│   ├── sample-report-qwen3-4b.md
+│   └── sample-report-qwen3-8b-gguf-q4-k-m.md
 ├── scripts/
 │   ├── build-package.sh
 │   ├── dev-setup.sh
