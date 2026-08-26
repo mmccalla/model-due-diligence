@@ -195,6 +195,12 @@ module = [
 ]
 ignore_missing_imports = true
 
+# NumPy 2.5+ stubs use PEP 695 `type` aliases. Mypy with python_version = 3.11
+# cannot parse them, which fails the Python 3.12 CI job when ModelScan pulls NumPy in.
+[[tool.mypy.overrides]]
+module = ["numpy", "numpy.*"]
+follow_imports = "skip"
+
 [tool.pyright]
 typeCheckingMode = "strict"
 pythonVersion = "3.11"
