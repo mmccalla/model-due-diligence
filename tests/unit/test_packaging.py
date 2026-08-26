@@ -50,6 +50,28 @@ def test_pyproject_version_is_valid_semver() -> None:
     assert version == "0.2.0"
 
 
+def test_mypy_skips_numpy_stub_imports() -> None:
+    data = _load_pyproject()
+    tool = data.get("tool")
+    assert isinstance(tool, dict)
+    mypy = tool.get("mypy")
+    assert isinstance(mypy, dict)
+    overrides = mypy.get("overrides")
+    assert isinstance(overrides, list)
+
+    numpy_override = next(
+        (
+            item
+            for item in overrides
+            if isinstance(item, dict) and "numpy" in {str(module) for module in item.get("module") or []}
+        ),
+        None,
+    )
+
+    assert numpy_override is not None
+    assert numpy_override.get("follow_imports") == "skip"
+
+
 def test_ui_optional_dependency_includes_fastapi_and_uvicorn() -> None:
     ui_deps = _ui_optional_dependencies()
     joined = " ".join(ui_deps).lower()
